@@ -3,7 +3,7 @@ This module contains all functions used throughout the codebase.
 """
 import numpy as np
 
-class Util(object):
+class Util():
 
 	def __init__(self):
 		pass

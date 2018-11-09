@@ -23,7 +23,7 @@ class DataExtractor(object):
 		Method: Combining all the images across locations.
 		"""
 		locations = list(mapping.values())
-		image_feature_map = {}
+		image_feature_map = OrderedDict({})
 		model = constants.VISUAL_DESCRIPTOR_MODEL_FOR_GRAPH_CREATION
 
 		for location in locations:
