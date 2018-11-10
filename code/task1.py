@@ -18,6 +18,7 @@ class Task1():
 	def generate_imgximg_edgelist(self, image_list1, image_list2, image_feature_map):
 		""" Method: generate_imgximg_edgelist returns image to image similarity in form of an edge list """
 		imgximg_edgelist = []
+		image_id_mapping = {}
 		for index1 in range(0, len(image_list1)):
 			print("index1 : ", index1)
 			local_edgelist = []
@@ -28,9 +29,10 @@ class Task1():
 				features_image2 = image_feature_map[image2]
 				score = 1 / (1 + self.calculate_similarity(features_image1, features_image2))
 				local_edgelist.append((image1, image2, score))
+			image_id_mapping[image1] = index1
 			imgximg_edgelist.append(local_edgelist)
 
-		return imgximg_edgelist
+		return imgximg_edgelist, image_id_mapping
 
 	def calculate_similarity(self, features_image1, features_image2):
 		""" Method: image-image similarity computation"""
@@ -94,14 +96,22 @@ class Task1():
 			image_list = list(image_feature_map.keys())
 			# for dev set we'll have 4 bins
 			task1_pkl_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "task1_img.pickle", "wb")
+			image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "wb")
 			imgximg_edgelist = []
+			image_id_mapping = {}
 
 			for iter in range(0, len(image_list), 1000):
-				imgximg_edgelist = self.generate_imgximg_edgelist(image_list[iter:iter + 1000], image_list, image_feature_map)
+				imgximg_edgelist, local_imageid_mapping = self.generate_imgximg_edgelist(image_list[iter:iter + 1000], \
+																					image_list, image_feature_map)
 				pickle.dump(["Object"+ str(iter), imgximg_edgelist], task1_pkl_file)
+				image_id_mapping.update(local_imageid_mapping)
+
+			pickle.dump(["Imageid Mapping:", image_id_mapping], image_id_mapping_file)
 
 			# imgximg_edgelist, label_dict = self.generate_imgximg_edgelist(image_feature_map)
 			task1_pkl_file.close()
+			image_id_mapping_file.close()
+
 			task1_pkl_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "task1_img.pickle", "rb")
 			objects = pickle.load(task1_pkl_file)
 			top_k_edgelist = []

@@ -1,7 +1,9 @@
 """
 This module contains all functions used throughout the codebase.
 """
+import constants
 import numpy as np
+import pickle
 
 class Util():
 
@@ -22,6 +24,10 @@ class Util():
 		"""
 		graph returned in this format -
 		graph = [{(1,2): 0.8, (1,3): 0.7, ....},
-					{(2,1): 0.8, (2,3): 0.75, ...}]
+				{(2,1): 0.8, (2,3): 0.75, ...}]
 		"""
 		pass
+
+	def image_id_mapping(self):
+		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+		return pickle.load(image_id_mapping_file)[0][1]
