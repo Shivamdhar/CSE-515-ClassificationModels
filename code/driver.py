@@ -3,6 +3,7 @@ This module is a driver program which selects a particular task.
 """
 from task1 import Task1
 from task2 import Task2
+from task3 import Task3
 
 class Driver():
 
@@ -12,7 +13,7 @@ class Driver():
 
 	def select_task(self, task_num):
 		# Plugin class names for each task here
-		tasks = { "1": Task1(), "2": Task2() }
+		tasks = { "1": Task1(), "2": Task2(), "3": Task3(), "4": Task3(personalised = True) }
 		# Have a runner method in all the task classes
 		tasks.get(task_num).runner()
 
