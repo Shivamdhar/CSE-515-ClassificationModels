@@ -1,4 +1,5 @@
 import random
+from util import Util
 class Task2():
 	def __init__(self):
 		self.ut = Util()

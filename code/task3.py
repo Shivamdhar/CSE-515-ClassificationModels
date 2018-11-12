@@ -1,5 +1,6 @@
 import numpy as np
 from numpy import linalg as LA
+from util import Util
 class Task3():
 	def __init__(self, personalised = False):
 		self.ut = Util()
@@ -9,21 +10,21 @@ class Task3():
 		self.image_id_mapping = self.ut.image_id_mapping
 
 	def pagerank(graph, K, images):
-	"""
-	1. compute transition matrix denoting random walks -
-	T =  βM(nxn) + (1−β).[1/N](n×n)
-	M[i,j] = { 
-				1/out(pi) ; if there is an edge between pi and pj
-				1/N ; if out(pi) = 0
-				0 ; if |out(pi)| not equal to 0 but there is no edge from pi to pj
-			}
+		"""
+		1. compute transition matrix denoting random walks -
+		T =  βM(nxn) + (1−β).[1/N](n×n)
+		M[i,j] = { 
+					1/out(pi) ; if there is an edge between pi and pj
+					1/N ; if out(pi) = 0
+					0 ; if |out(pi)| not equal to 0 but there is no edge from pi to pj
+				}
 
-	2. pagerank of each page p is defined as percentage of time random surfer spends on visiting p -> 
-		components of first eigen vector of T
-	"""
-	transition_matrix = self.compute_transition_matrix(graph, image_ids)
-	pagerank = self.get_time_spent_by_random_surfer_on_a_page(transition_matrix)
-	top_k(pagerank, K)
+		2. pagerank of each page p is defined as percentage of time random surfer spends on visiting p -> 
+			components of first eigen vector of T
+		"""
+		transition_matrix = self.compute_transition_matrix(graph, image_ids)
+		pagerank = self.get_time_spent_by_random_surfer_on_a_page(transition_matrix)
+		top_k(pagerank, K)
 
 	def compute_transition_matrix(self, graph, image_ids):
 		left_operand = self.compute_left_operand(graph)
