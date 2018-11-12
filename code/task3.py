@@ -1,16 +1,15 @@
-import numpy as np
-from numpy import linalg as LA
-from util import Util
 import constants
-import scipy.sparse as sparse
+import numpy as np
 import pickle
+import scipy.sparse as sparse
+from util import Util
+
 class Task3():
 	def __init__(self, personalised = False):
 		self.ut = Util()
 		self.beta = 0.85
 		self.transportation_probability = 1/3.0
 		self.personalised = personalised
-		# self.image_id_mapping = self.ut.image_id_mapping
 
 	def pagerank(self, graph, K, image_ids):
 		"""
@@ -83,7 +82,7 @@ class Task3():
 	def top_k(self, pagerank_score, K):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
-		# image_id_mapping = self.ut.image_id_mapping
+
 		image_id_score_mapping = {}
 
 		for iter in range(0, len(pagerank_score)):
@@ -95,7 +94,6 @@ class Task3():
 
 	def runner(self):
 		try:
-			# image_id_mapping = self.ut.image_id_mapping
 			image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 			image_id_mapping = pickle.load(image_id_mapping_file)[1]
 			K = int(input("Enter the value of K: "))

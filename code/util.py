@@ -26,8 +26,8 @@ class Util():
 		graph = [{(1,2): 0.8, (1,3): 0.7, ....},
 				{(2,1): 0.8, (2,3): 0.75, ...}]
 		"""
-		task3_pkl_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "task3_img.pickle", "rb")
-		objects = pickle.load(task3_pkl_file)
+		graph_dict_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "graph_dict.pickle", "rb")
+		objects = pickle.load(graph_dict_file)
 
 		return objects[1]
 

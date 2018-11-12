@@ -1,9 +1,14 @@
+import constants
+import pickle
 import random
 from util import Util
+from task1 import Task1
+import pdb
 
 class Task2():
 	def __init__(self):
 		self.ut = Util()
+		self.task1  = Task1()
 
 	def k_means(self, graph, c):
 		"""
@@ -13,12 +18,6 @@ class Task2():
 				if all images have been assigned, then recalculate the cluster centroids.
 		3. return c clusters
 		"""
-		initial_cluster_centroids, edge_set = self.get_initial_cluster_centroids(graph, c)
-		c_clusters = self.converge(graph, edge_set, initial_cluster_centroids)
-
-		return c_clusters
-
-	def get_initial_cluster_centroids(self, graph, c):
 		initial_cluster_centroids = self.get_cluster_centroids(graph, c)
 		initial_clusters = self.form_clusters(graph, initial_cluster_centroids)
 
@@ -48,16 +47,17 @@ class Task2():
 				cluster_centroid_index_with_max_sim = node_centroid_sim.index(max(node_centroid_sim))
 				clusters[initial_cluster_centroids[cluster_centroid_index_with_max_sim]].append(i)
 
+		print(clusters)
 		return clusters
 
-	def converge(self, c, clusters, graph, default=10):
+	def converge(self, c, clusters, graph, default=50):
 		"""
 		loop until cluster centroids found in consecutive iterations are closer to each other
 		"""
 		iterations = 0
 		while(True):
 			cluster_centroids = self.get_cluster_centroids(graph, c)
-			c_clusters = self.form_clusters(graph, initial_cluster_centroids)
+			c_clusters = self.form_clusters(graph, cluster_centroids)
 			iterations += 1
 			if self.check_for_convergence(clusters, c_clusters):
 				return c_clusters
@@ -68,10 +68,14 @@ class Task2():
 	def check_for_convergence(self, clustering1, clustering2):
 		cluster1_objects = []
 		cluster2_objects = []
+
 		for key1, value1 in clustering1.items():
 			cluster1_objects.append(value1.append(key1))
 		for key2, value2 in clustering2.items():
 			cluster2_objects.append(value2.append(key2))
+		
+		cluster1_objects = list(clustering1.values())
+		cluster2_objects = list(clustering2.values())
 
 		count = 0
 		for iter1 in cluster1_objects:
@@ -91,8 +95,13 @@ class Task2():
 	def runner(self):
 		try:
 			c = int(input("Enter the value of c (number of clusters): "))
-			graph = self.ut.fetch_imgximg_graph()
-			c_clusters = k_means(graph, c)
+
+			list_of_list_graph_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "list_of_list_graph.pickle", "rb")
+			graph = pickle.load(list_of_list_graph_file)
+			list_of_list_graph_file.close()
+
+			# pdb.set_trace()
+			c_clusters = self.k_means(graph, c)
 			self.pretty_print(c_clusters)
 
 		except Exception as e:
