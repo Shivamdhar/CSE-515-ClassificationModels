@@ -15,10 +15,12 @@ class Task1():
 		self.data_extractor = DataExtractor()
 		self.mapping = self.data_extractor.location_mapping()
 
-	def generate_imgximg_edgelist(self, image_list1, image_list2, image_feature_map):
+	def generate_imgximg_edgelist(self, image_list1, image_list2, image_feature_map, from_index):
 		""" Method: generate_imgximg_edgelist returns image to image similarity in form of an edge list """
 		imgximg_edgelist = []
 		image_id_mapping = {}
+		# import pdb
+		# pdb.set_trace()
 		for index1 in range(0, len(image_list1)):
 			print("index1 : ", index1)
 			local_edgelist = []
@@ -29,21 +31,42 @@ class Task1():
 				features_image2 = image_feature_map[image2]
 				score = 1 / (1 + self.calculate_similarity(features_image1, features_image2))
 				local_edgelist.append((image1, image2, score))
-			image_id_mapping[image1] = index1
+			image_id_mapping[image1] = index1 + from_index
+			# pdb.set_trace()
 			imgximg_edgelist.append(local_edgelist)
 
+		print(image_id_mapping)
 		return imgximg_edgelist, image_id_mapping
 
 	def calculate_similarity(self, features_image1, features_image2):
 		""" Method: image-image similarity computation"""
 		return self.ut.compute_euclidean_distance(np.array(features_image1), np.array(features_image2))
 
+	def get_img_img_edgelist(self, combined_edgelist, image_id_mapping):
+		img_img_edgelist = []
+		# import pdb
+		# pdb.set_trace()
+		for image_id, index in image_id_mapping.items():
+			image_id_edges = []
+			for edge_pair in combined_edgelist:
+				if edge_pair[0] == image_id or edge_pair[1] == image_id:
+
+					image_id_edges.append(edge_pair)
+			# pdb.set_trace()
+			img_img_edgelist.append(image_id_edges)
+
+		# import pdb
+		# pdb.set_trace()
+		return img_img_edgelist
+
 	def generate_top_k_edgelist(self, imgximg_edgelist, k):
 		""" returns top k edgelists for each image """
 		top_k_edgelist = []
+		import pdb
+		pdb.set_trace()
 		for image_edge_list in imgximg_edgelist:
 			image_edge_list.sort(key=lambda value: value[2], reverse = True)
-			top_k_edgelist.append(image_edge_list[0:k])
+			top_k_edgelist.append(image_edge_list[:k])
 		return top_k_edgelist
 
 	def pretty_print(self, top_k_edgelist, k):
@@ -66,12 +89,11 @@ class Task1():
 		for iter in merged_image_list:
 			graph_file.write(str(iter[0]) + " " + str(iter[1]) + " " + str(iter[2]) + "\n")
 
-	def visualise_graph(self):
+	def create_graph(self):
 		g = nx.read_edgelist(constants.VISUALIZATIONS_DIR_PATH + "graph_file.txt", nodetype=int, \
 							data=(('weight',float),), create_using=nx.DiGraph())
 		print("graph created")
-		# nx.draw(g, node_color="g", node_size=1)
-		# plt.show()
+		return g
 
 	def runner(self):
 		"""
@@ -84,10 +106,14 @@ class Task1():
 				times to fetch all the objects """
 			combined_edgelist = []
 			for iter in range(0,9):
-				combined_edgelist += pickle.load(task1_pkl_file)[1][0]
+				combined_edgelist += pickle.load(task1_pkl_file)[1][iter]
 
-			top_k_edgelist = []
-			top_k_edgelist += self.generate_top_k_edgelist(combined_edgelist, k)
+			task1_pkl_file.close()
+			image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+			image_id_mapping = pickle.load(image_id_mapping_file)[1]
+			image_id_mapping_file.close()
+			# img_img_edgelist = self.get_img_img_edgelist(combined_edgelist[1:], image_id_mapping)
+			top_k_edgelist = self.generate_top_k_edgelist(combined_edgelist, k)
 			self.pretty_print(top_k_edgelist, k)
 			# self.visualise_graph()
 
@@ -102,7 +128,7 @@ class Task1():
 
 			for iter in range(0, len(image_list), 1000):
 				imgximg_edgelist, local_imageid_mapping = self.generate_imgximg_edgelist(image_list[iter:iter + 1000], \
-																					image_list, image_feature_map)
+																					image_list, image_feature_map, iter)
 				pickle.dump(["Object"+ str(iter), imgximg_edgelist], task1_pkl_file)
 				image_id_mapping.update(local_imageid_mapping)
 
@@ -114,11 +140,15 @@ class Task1():
 
 			task1_pkl_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "task1_img.pickle", "rb")
 			objects = pickle.load(task1_pkl_file)
-			top_k_edgelist = []
+			# top_k_edgelist = []
+			combined_edgelist = []
 
 			for iter in range(0, len(objects)):
-				top_k_edgelist += self.generate_top_k_edgelist(objects[iter][1], k)
+				combined_edgelist += objects[1][iter]
 			task1_pkl_file.close()
+
+			# img_img_edgelist = self.get_img_img_edgelist(combined_edgelist, image_id_mapping)
+			top_k_edgelist = self.generate_top_k_edgelist(combined_edgelist, k)
 
 			self.pretty_print(top_k_edgelist, k)
 			self.visualise_graph()
