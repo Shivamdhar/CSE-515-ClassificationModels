@@ -177,6 +177,5 @@ class PreProcessor(object):
 		pickle.dump(["Object", graph_dict], task3_pkl_file)
 		task3_pkl_file.close()
 
-
 object = PreProcessor()
 object.pre_process()
