@@ -4,6 +4,7 @@ This module contains all functions used throughout the codebase.
 import constants
 import numpy as np
 import pickle
+from sklearn.decomposition import TruncatedSVD
 
 class Util():
 
@@ -31,3 +32,9 @@ class Util():
 	def image_id_mapping(self):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		return pickle.load(image_id_mapping_file)[0][1]
+
+	def dim_reduce_SVD(self, input_arr, k):
+		svd = TruncatedSVD(n_components=int(k))
+		svd.fit(input_arr)
+
+		return(svd.transform(input_arr))
