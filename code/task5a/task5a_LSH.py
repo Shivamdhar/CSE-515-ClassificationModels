@@ -33,7 +33,6 @@ class Task5aLSH:
 	"""
 	def __getitem__(self, input_vector):
 		label_list = list()
-		print("Getting the values")
 		for table in self.hash_tables:
 			label_list.extend(table[input_vector])
 		return list(set(label_list))
