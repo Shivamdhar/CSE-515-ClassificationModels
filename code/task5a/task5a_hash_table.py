@@ -38,5 +38,4 @@ class Task5aHashTable:
 
 	def __getitem__(self, input_vector):
 		hash_value = self.generate_hash(input_vector)
-		print("hash_value",hash_value)
 		return self.hash_table.get(hash_value, [])
