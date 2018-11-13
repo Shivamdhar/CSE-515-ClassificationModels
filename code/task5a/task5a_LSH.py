@@ -96,11 +96,11 @@ class Task5aLSH:
 		# 	table_instance.__setitem__(image, the_label)
 			# the_hash = table_instance.generate_hash(image)
 			# table_instance.hash_table[the_hash] = the_label
-		for index, image in self.data_matrix.items():
-	        #the_label = index
+		for label, image in self.data_matrix.items():
+	        #the_label = label
 			the_hash = table_instance.generate_hash(image)
-			#table_instance.hash_table[the_hash] = index
-			table_instance.__setitem__(image, index)
+			#table_instance.hash_table[the_hash] = label
+			table_instance.__setitem__(image, label)
 
 	"""
 	Method Explanation:
