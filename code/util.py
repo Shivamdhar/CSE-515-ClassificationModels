@@ -31,6 +31,18 @@ class Util():
 
 		return objects[1]
 
+	def fetch_adjacency_matrix(self):
+		graph_dict_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "graph_dict.pickle", "rb")
+		objects = pickle.load(graph_dict_file)
+
+		graph = objects[1]
+		adj_matrix = [[0]*len(graph)]*len(graph)
+		for image_row in graph:
+			for edge, score in image_row.items():
+				adj_matrix[edge[0]][edge[1]] = 1
+
+		return adj_matrix
+
 	def image_id_mapping(self):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		return pickle.load(image_id_mapping_file)[1]
