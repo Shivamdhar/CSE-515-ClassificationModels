@@ -1,6 +1,8 @@
 import constants
 import numpy as np
 import os
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 from task5a.task5a_LSH import Task5aLSH
 from util import Util
 
@@ -64,36 +66,35 @@ class Task5b():
 		# 			final_imgs[image] = [table[image_feature_matrix[image]]]
 
 
-	def get_image_features_dataset(self):
-		visual_dir_path = constants.PROCESSED_VISUAL_DESCRIPTORS_DIR_PATH
-		list_of_files = os.listdir(visual_dir_path)
-		image_feature_matrix = {}
-		"""
-		color models options
-		
-		"""
-		#color_models = ["LBP3x3", "CM3x3", "GLRLM"]
-		#color_models = ["CN3x3", "HOG", "CM3x3","CSD"] #last current
-		#color_models = ["GLRLM", "GLRLM3x3"]
-		#color_models = ["CM", "CM3x3", "CN", "CN3x3", "CSD"]
-		#color_models = ["CN3x3", "HOG", "CM3x3","CSD","LBP"]
-		#color_models = ["CN3x3", "HOG", "CM3x3"]
-		#color_models = ["CM", "CM3x3", "CN", "CN3x3", "CSD"]
-		color_models = constants.MODELS
-		for filename in list_of_files:
-			model = filename.split(" ")[1].replace(".csv","")
-			if model in color_models:
-				with open(os.path.join(visual_dir_path,filename)) as file:
-					for row in file:
-						row_data = row.strip().split(",")
-						feature_values = np.array(list(map(float, row_data[1:])))
-						feature_values = list(np.interp(feature_values, (feature_values.min(), feature_values.max()), (0, 1)))
-						image_id = int(row_data[0])
-						if image_id in image_feature_matrix:
-							image_feature_matrix[image_id] += feature_values
-						else:
-							image_feature_matrix[image_id] = feature_values
-		return image_feature_matrix
+	# def get_image_features_dataset(self):
+	# 	visual_dir_path = constants.PROCESSED_VISUAL_DESCRIPTORS_DIR_PATH
+	# 	list_of_files = os.listdir(visual_dir_path)
+	# 	image_feature_matrix = {}
+	# 	"""
+	# 	color models options
+	# 	"""
+	# 	#color_models = ["LBP3x3", "CM3x3", "GLRLM"]
+	# 	#color_models = ["CN3x3", "HOG", "CM3x3","CSD"] #last current
+	# 	#color_models = ["GLRLM", "GLRLM3x3"]
+	# 	#color_models = ["CM", "CM3x3", "CN", "CN3x3", "CSD"]
+	# 	#color_models = ["CN3x3", "HOG", "CM3x3","CSD","LBP"]
+	# 	#color_models = ["CN3x3", "HOG", "CM3x3"]
+	# 	#color_models = ["CM", "CM3x3", "CN", "CN3x3", "CSD"]
+	# 	color_models = constants.MODELS
+	# 	for filename in list_of_files:
+	# 		model = filename.split(" ")[1].replace(".csv","")
+	# 		if model in color_models:
+	# 			with open(os.path.join(visual_dir_path,filename)) as file:
+	# 				for row in file:
+	# 					row_data = row.strip().split(",")
+	# 					feature_values = np.array(list(map(float, row_data[1:])))
+	# 					feature_values = list(np.interp(feature_values, (feature_values.min(), feature_values.max()), (0, 1)))
+	# 					image_id = int(row_data[0])
+	# 					if image_id in image_feature_matrix:
+	# 						image_feature_matrix[image_id] += feature_values
+	# 					else:
+	# 						image_feature_matrix[image_id] = feature_values
+	# 	return image_feature_matrix
 
 	# def get_top_5_similar_images(self,image_feature_matrix,query_image_id):
 	# 	similar_images = []
@@ -127,10 +128,69 @@ class Task5b():
 			k_semantics_map[entity_id] = value
 		return k_semantics_map
 
+
+	def preprocess_image_dataset(self):
+		"""
+		1) Combine all models and apply min max to entire combined dataset of a given model
+		2) Construct a map of keys as image id and combine all the features from each model.
+		"""
+		visual_dir_path = constants.PROCESSED_VISUAL_DESCRIPTORS_DIR_PATH
+		list_of_files = os.listdir(visual_dir_path)
+		"""
+		color models options
+		"""
+		#color_models = ["LBP3x3", "CM3x3", "GLRLM"]
+		#color_models = ["CN3x3", "HOG", "CM3x3","CSD"] #last current
+		#color_models = ["GLRLM", "GLRLM3x3"]
+		#color_models = ["CM", "CM3x3", "CN", "CN3x3", "CSD"]
+		#color_models = ["CN3x3", "HOG", "CM3x3","CSD","LBP"]
+		#color_models = ["CN3x3", "HOG", "CM3x3"]
+		#color_models = ["CM", "CM3x3", "CN", "CN3x3", "CSD"]
+		color_models = constants.MODELS
+		model_map = {}
+		for filename in list_of_files:
+			model_name = filename.split(" ")[1].replace(".csv","")
+			df = pd.read_csv(os.path.join(visual_dir_path,filename), header = None)
+			if model_name in model_map:
+				#concat the dataframe with earlier df (prev location)
+				pass
+				model_map[model_name] += [df]
+			else:
+				model_map[model_name] = [df]
+
+		image_ids = []
+		for k in model_map.keys():
+			model_map[k] = pd.concat(model_map[k])
+			if image_ids == []:
+				image_ids = model_map[k].iloc[:,0].tolist()
+
+		final_features = []
+		for df in model_map.values():
+			# min scale each df for a given model and store in the list
+			#image_ids = df.iloc[:,0].to_frame
+			features = df.iloc[:,1:]
+			minmax_scaler = MinMaxScaler()
+			features_scaled = minmax_scaler.fit_transform(features)
+			final_features.append(features_scaled)
+
+		combined_features = np.concatenate(final_features,axis=1)
+
+		image_feature_matrix = {}
+
+		# Representing image ids as integer
+		image_ids = list(map(int,image_ids))
+
+		for image_id,vector in zip(image_ids,combined_features):
+			image_feature_matrix[image_id] = vector
+
+		return image_feature_matrix
+
 	def runner(self):
 		image_id = int(input("Enter the query image: "))
 		t = int(input("Enter the value of t (number of similar images): "))
-		image_feature_matrix = self.get_image_features_dataset()
+		#image_feature_matrix = self.get_image_features_dataset()
+
+		image_feature_matrix = self.preprocess_image_dataset()
 
 		if image_id not in image_feature_matrix:
 			raise ValueError(constants.IMAGE_ID_KEY_ERROR)
