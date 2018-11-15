@@ -9,6 +9,8 @@ import constants
 from data_extractor import DataExtractor
 import glob
 import pandas as pd
+import pickle
+from task1 import Task1
 
 class PreProcessor(object): 
 	def __init__(self):
@@ -16,14 +18,17 @@ class PreProcessor(object):
 		data_extractor = DataExtractor()
 		mapping = data_extractor.location_mapping()
 		self.locations = list(mapping.values())
+		self.task1  = Task1()
 
 	def pre_process(self):
 		"""
 		Any other preprocessing needed can be called from pre_process method.
 		"""
-		self.remove_duplicates_from_visual_descriptor_dataset()
-		self.rename_image_ids_from_visual_descriptor_dataset()
-		self.add_missing_objects_to_dataset()
+		# self.remove_duplicates_from_visual_descriptor_dataset()
+		# self.rename_image_ids_from_visual_descriptor_dataset()
+		# self.add_missing_objects_to_dataset()
+		# self.transform_graph_file_to_dict_graph()
+		self.transform_edgelist_to_list_of_list_graph()
 
 	def remove_duplicates_from_visual_descriptor_dataset(self):
 		"""
@@ -67,7 +72,7 @@ class PreProcessor(object):
 				common_image_ids = set(dataset[iterator1]).intersection(dataset[iterator2])
 				if len(common_image_ids) > 0:
 					location_files_to_be_cleaned.append([self.locations[iterator1], self.locations[iterator2],
-						                                 common_image_ids])
+														 common_image_ids])
 
 		for iterator in location_files_to_be_cleaned:
 			for model in self.models:
@@ -86,7 +91,6 @@ class PreProcessor(object):
 		Method: add_missing_objects_to_dataset finds out missing objects across locations and models and adds them to
 		relevant files ensuring data consistency
 		"""
-
 		location_image_id_map = {}
 		for location in self.locations:
 			for model in self.models:
@@ -117,6 +121,50 @@ class PreProcessor(object):
 						print("New object inserted : " + str(image_id) + " in " + location_model_file)
 						file_des.write(str(image_id) + "," + ",".join(feature_values) + "\n")
 
+	def transform_edgelist_to_list_of_list_graph(self):
+		"""
+		Note: works for reduced graph.
+		"""
+		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+		image_id_mapping = pickle.load(image_id_mapping_file)[1]
+		graph_list = []
+		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/graph_file.txt', 'r') as graph_file:
+			image1 = ""
+			for line in graph_file:
+				temp = line.replace("\n", "").split(" ")
+				if temp[0] != image1:
+					image1 = temp[0]
+					edges_list = []
+					edges_list.append((image_id_mapping[temp[0]], image_id_mapping[temp[1]], float(temp[2])))
+					graph_list.append(edges_list)
+				else:
+					graph_list[-1].append((image_id_mapping[temp[0]], image_id_mapping[temp[1]], float(temp[2])))
+
+		list_of_list_graph_pickle_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "list_of_list_graph.pickle", "wb")
+		pickle.dump(graph_list, list_of_list_graph_pickle_file)
+		list_of_list_graph_pickle_file.close()	
+
+	def transform_graph_file_to_dict_graph(self):
+		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+		image_id_mapping = pickle.load(image_id_mapping_file)[1]
+		graph_dict = []
+		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/graph_file.txt', 'r') as graph_file:
+			image1 = ""
+			cnt = -1
+			for line in graph_file:
+				temp = line.replace("\n", "").split(" ")
+				if temp[0] != image1:
+					image1 = temp[0]
+					cnt += 1
+					edges_dict = {(image_id_mapping[temp[0]], image_id_mapping[temp[1]]): float(temp[2])}
+					graph_dict.append(edges_dict)
+				else:
+					graph_dict[cnt].update({(image_id_mapping[temp[0]], image_id_mapping[temp[1]]): float(temp[2])})
+
+		graph_dict_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "graph_dict.pickle", "wb")
+
+		pickle.dump(["Object", graph_dict], graph_dict_file)
+		graph_dict_file.close()
 
 object = PreProcessor()
 object.pre_process()

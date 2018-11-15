@@ -27,11 +27,14 @@ class Util():
 		graph = [{(1,2): 0.8, (1,3): 0.7, ....},
 				{(2,1): 0.8, (2,3): 0.75, ...}]
 		"""
-		pass
+		graph_dict_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "graph_dict.pickle", "rb")
+		objects = pickle.load(graph_dict_file)
+
+		return objects[1]
 
 	def image_id_mapping(self):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
-		return pickle.load(image_id_mapping_file)[0][1]
+		return pickle.load(image_id_mapping_file)[1]
 
 	def dim_reduce_SVD(self, input_arr, k):
 		svd = TruncatedSVD(n_components=int(k))
