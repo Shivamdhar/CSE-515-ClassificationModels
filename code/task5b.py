@@ -31,14 +31,14 @@ class Task5b():
 		#print(lsh.__getitem__(image_feature_matrix[int(images[0])]))
 
 
-		#lsh_images = []
+		lsh_images = []
 
 		#count = 0
-		# for image,vector in image_feature_matrix.items():
-		# 	# if count > 5:
-		# 	# 	break
-		# 	lsh_images.append(lsh.__getitem__(vector))
-		# 	count+=1
+		for image,vector in image_feature_matrix.items():
+			# if count > 5:
+			# 	break
+			lsh_images.append(lsh.__getitem__(vector))
+			#count+=1
 
 		# for image in images:
 		# 	vector = image_feature_matrix[image]
@@ -46,14 +46,17 @@ class Task5b():
 
 		# print("LSH images",lsh_images,len(lsh_images))
 
-		# count = 0
-		# for i,v in enumerate(lsh_images):
-		# 	if len(v) == 1:
-		# 		print("index",i,v)
-		# 		count+=1
-		# print("Singular images",count)
+		#lsh_images = lsh.__getitem__(image_feature_matrix[query_image_id])
+
+		count = 0
+		for i,v in enumerate(lsh_images):
+			if len(v) == 1:
+				print("index",i,v)
+				count+=1
+		print("Singular images",count)
 
 		lsh_images = lsh.__getitem__(image_feature_matrix[query_image_id])
+		print("Imge count",len(lsh_images))
 
 		return lsh_images
 
@@ -174,6 +177,9 @@ class Task5b():
 			final_features.append(features_scaled)
 
 		combined_features = np.concatenate(final_features,axis=1)
+
+		minmax_scaler = MinMaxScaler()
+		combined_features = minmax_scaler.fit_transform(combined_features)
 
 		image_feature_matrix = {}
 
