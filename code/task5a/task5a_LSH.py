@@ -19,7 +19,6 @@ class Task5aLSH:
 		for value in range(self.L_layer_count):
 			print('Initializing Hash Table: ', value)
 			self.hash_tables.append(Task5aHashTable(self.k_hash_functions_per_layer, self.feature_count, self.w_parameter))
-		
 		self.fill_all_hashtables()
 
 	"""
