@@ -25,6 +25,7 @@ class Task3_iterative():
 			initial_vector = [0]*len(graph)
 			for seed in seeds:
 				initial_vector[seed] = self.transition_probability
+			return initial_vector
 		else:
 			return [1.0/len(graph)]*len(graph)
 
@@ -41,16 +42,18 @@ class Task3_iterative():
 			pointing_nodes_list.append(local_pointing_nodes_list)
 		return pointing_nodes_list
 
-	def converge(self, pagerank_vector, out_degree_list, pointing_nodes_list, default_iterations=100):
+	def converge(self, pagerank_vector, out_degree_list, pointing_nodes_list, default_iterations=5):
 		iterations = 0
-		pg_vector = pagerank_vector
+		pg_vectors = [pagerank_vector]
 		while(iterations < default_iterations):
-			for node in range(len(pagerank_vector)):
+			pg_vector = [0]*len(pg_vectors[-1])
+			for node in range(len(pg_vectors[0])):
 				nodes_with_incoming_edges = pointing_nodes_list[node]
-				right_operand = self.random_walk(nodes_with_incoming_edges, out_degree_list, pg_vector)
-				pg_vector[node] = (1-self.d) + self.d*(right_operand)
+				right_operand = self.random_walk(nodes_with_incoming_edges, out_degree_list, pg_vectors[-1])
+				pg_vector[node] = (1-self.d) + np.multiply(self.d, right_operand)
+			pg_vectors.append(pg_vector)
 			iterations += 1
-		return pg_vector
+		return pg_vectors[-1]
 
 	def random_walk(self, nodes_with_incoming_edges, out_degree_list, pg_vector):
 		sum_random_nodes = 0
@@ -69,6 +72,19 @@ class Task3_iterative():
 				if index == iter:
 					image_id_score_mapping[image_id] = pagerank_score[iter]
 		print("Top K images based on pagerank score\n")
+		if(self.personalised == False):
+			op = open(constants.TASK3_OUTPUT_FILE, "w")
+			op.write("K most dominant images are:\n")
+			for image_id, score in image_id_score_mapping.items():
+				op.write(str(image_id))
+				op.write("\n")
+		else:
+			op = open(constants.TASK4_OUTPUT_FILE, "w")
+			op.write("K most dominant images are:\n")
+			for image_id, score in image_id_score_mapping.items():
+				op.write(str(image_id))
+				op.write("\n")
+
 		print(sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K])
 
 	def runner(self):
@@ -77,6 +93,7 @@ class Task3_iterative():
 			image_id_mapping = pickle.load(image_id_mapping_file)[1]
 			seeds = []
 			K = int(input("Enter the value of K: "))
+			initial_k = int(input("Enter the initial value of k: "))
 			if self.personalised:
 				print("Enter three image ids to compute PPR:\n")
 				image_id1 = input("Image id1:")
@@ -85,7 +102,10 @@ class Task3_iterative():
 				seeds.append(image_id_mapping[image_id2])
 				image_id3 = input("Image id3:")
 				seeds.append(image_id_mapping[image_id3])
-			graph = self.ut.fetch_adjacency_matrix()
+			import pdb
+			pdb.set_trace()
+			graph = self.ut.create_adj_mat_from_red_file(initial_k)
+			pdb.set_trace()
 			k_dominant_images = self.pagerank(graph, K, seeds)
 
 		except Exception as e:
