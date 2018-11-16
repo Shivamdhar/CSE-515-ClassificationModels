@@ -68,3 +68,22 @@ class Util():
 	def image_id_mapping(self):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		return pickle.load(image_id_mapping_file)[1]
+
+	def create_sim_adj_mat_from_red_file(self, initial_k):
+		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+		image_id_mapping = pickle.load(image_id_mapping_file)[1]
+
+		graph_file = open(constants.GRAPH_FILE, "r")
+		edges = graph_file.readlines()
+
+		graph_file_len = len(edges)
+		size_of_graph = graph_file_len // initial_k
+		adj_matrix = [[0] * size_of_graph] * size_of_graph
+
+		for line in edges:
+			temp = line.split(" ")
+			if temp[0] == temp[1]:
+				continue
+			adj_matrix[image_id_mapping[temp[0]]][image_id_mapping[temp[1]]] = temp[2]
+
+		return adj_matrix
