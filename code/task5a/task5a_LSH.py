@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+<<<<<<< HEAD
 from task5a.task5a_hash_table import Task5aHashTable
 
 """ Ha,b(v) = |_(r.v + b)/w_| --- (1) """
@@ -15,14 +16,41 @@ class Task5aLSH:
 		self.data_matrix_transpose = []
 		self.image_ids = list()
 		#self.init_data() # Initializes the data matrix and also the feature count
+
 		self.w_parameter = w_parameter # w in (1)
 		self.hash_tables = list()
 		# create L hash tables with k hash functions per layer
 		for value in range(self.L_layer_count):
 			print('Initializing Hash Table: ', value)
 			self.hash_tables.append(Task5aHashTable(self.k_hash_functions_per_layer, self.feature_count, self.w_parameter))
+
+		self.fill_all_hashtables
+
+# =======
+# from task5a_hash_table import Task5aHashTable
+
+# """ Ha,b(v) = |_(r.v + b)/w_| --- (1) """
+# class Task5aLSH:
+# 	def __init__(self, L_layer_count, k_hash_functions_per_layer, w_parameter = 4):
+# 		self.L_layer_count = L_layer_count # number of layers
+# 		self.k_hash_functions_per_layer = k_hash_functions_per_layer # number of random projections per layer
+# 		self.feature_count = 0 # feature_count -- temporarily reading a dataset
+# 		self.data_matrix = []
+# 		self.data_matrix_transpose = []
+# 		self.image_ids = list()
+# 		self.init_data() # Initializes the data matrix and also the feature count
+# >>>>>>> task5a
+# 		self.w_parameter = w_parameter # w in (1)
+# 		self.hash_tables = list()
+# 		# create L hash tables with k hash functions per layer
+# 		for value in range(self.L_layer_count):
+# 			print('Initializing Hash Table: ', value)
+# 			self.hash_tables.append(Task5aHashTable(self.k_hash_functions_per_layer, self.feature_count, self.w_parameter))
+# <<<<<<< HEAD
 		
-		self.fill_all_hashtables()
+# =======
+# >>>>>>> task5a
+# 		self.fill_all_hashtables()
 
 	"""
 	Method Explanation:
@@ -100,6 +128,13 @@ class Task5aLSH:
 			the_hash = table_instance.generate_hash(image)
 			#table_instance.hash_table[the_hash] = label
 			table_instance.__setitem__(image, label)
+# =======
+# 		for index, image in enumerate(self.data_matrix):
+# 			the_label = self.image_ids[index]
+# 			table_instance.__setitem__(image, the_label)
+# 			# the_hash = table_instance.generate_hash(image)
+# 			# table_instance.hash_table[the_hash] = the_label
+# >>>>>>> task5a
 
 	"""
 	Method Explanation:
