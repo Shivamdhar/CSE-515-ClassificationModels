@@ -2,10 +2,14 @@
 This module captures constants used across the codebase.
 """
 MODELS = ["CM", "CM3x3", "CN", "CN3x3", "CSD", "GLRLM", "GLRLM3x3", "HOG", "LBP", "LBP3x3"]
-PROCESSED_VISUAL_DESCRIPTORS_DIR_PATH = "../dataset/visual_descriptors/processed/"
-VISUAL_DESCRIPTORS_DIR_PATH_REGEX = "../dataset/visual_descriptors/*.csv"
-DEVSET_TOPICS_DIR_PATH = "../dataset/textual_descriptors/devset_topics.xml"
-VISUAL_DESCRIPTORS_DIR_PATH = "../dataset/visual_descriptors/"
+#PROCESSED_VISUAL_DESCRIPTORS_DIR_PATH = "../dataset/visual_descriptors/processed/"
+PROCESSED_VISUAL_DESCRIPTORS_DIR_PATH = "../dataset/visual_descriptors/test_processed/"
+#VISUAL_DESCRIPTORS_DIR_PATH_REGEX = "../dataset/visual_descriptors/*.csv"
+VISUAL_DESCRIPTORS_DIR_PATH_REGEX = "devset/descvis/*.csv"
+#DEVSET_TOPICS_DIR_PATH = "../dataset/textual_descriptors/devset_topics.xml"
+DEVSET_TOPICS_DIR_PATH = "devset/devset_topics.xml"
+#VISUAL_DESCRIPTORS_DIR_PATH = "../dataset/visual_descriptors/"
+VISUAL_DESCRIPTORS_DIR_PATH = "devset/descvis/"
 TEXT_DESCRIPTORS_DIR_PATH = "../dataset/textual_descriptors/"
 DUMPED_OBJECTS_DIR_PATH = "../dumped_objects/"
 LOCATION_ID_KEY_ERROR = "Wrong input: Location id not found"

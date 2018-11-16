@@ -24,11 +24,11 @@ class PreProcessor(object):
 		"""
 		Any other preprocessing needed can be called from pre_process method.
 		"""
-		# self.remove_duplicates_from_visual_descriptor_dataset()
-		# self.rename_image_ids_from_visual_descriptor_dataset()
-		# self.add_missing_objects_to_dataset()
+		self.remove_duplicates_from_visual_descriptor_dataset()
+		self.rename_image_ids_from_visual_descriptor_dataset()
+		self.add_missing_objects_to_dataset()
 		# self.transform_graph_file_to_dict_graph()
-		self.transform_edgelist_to_list_of_list_graph()
+		#self.transform_edgelist_to_list_of_list_graph()
 
 	def remove_duplicates_from_visual_descriptor_dataset(self):
 		"""
