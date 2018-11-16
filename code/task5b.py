@@ -14,13 +14,16 @@ class Task5b():
 
 	def get_indexed_image_candidates(self,image_feature_matrix,query_image_id,t):
 		"""
-		Testing function
+		Method: Returns the list of LSH indexed image candidates for the given query image
+		image_feature_matrix :map of (image_ids, image_feature_vector)
+		t : threshold for similar image count used for controlling the k_hash_size value for LSH 
+		indexing.
 		"""
-		# sample images for test to check the bucket distribution
+		#Parameters for LSH
 		L_layer_count = 10
 		k_hash_size = 5
-		#lsh = Task5aLSH(L_layer_count,k_hash_size,self.feature_count)
 
+		#intantiating the LSH class
 		lsh = Task5aLSH(L_layer_count,k_hash_size,image_feature_matrix,w_parameter=72,feature_count=self.feature_count)
 
 		self.hash_tables = lsh.hash_tables
@@ -75,6 +78,11 @@ class Task5b():
 
 		#lsh_images = lsh.__getitem__(image_feature_matrix[query_image_id])
 
+
+		'''
+		The code below simulates the value of k depending on the number of candidates returned
+		and accordingly call the helper method to fetch the candidates for reduced k if it applies
+		'''
 		k = k_hash_size
 		lsh_images = lsh.__getitem__(image_feature_matrix[query_image_id])
 		while(True):
@@ -105,9 +113,20 @@ class Task5b():
 	# 	return sorted(similar_images,key = lambda x:x[1],reverse=True)[:5]
 
 	def get_top_t_similar_images(self,query_image_id,image_feature_matrix,image_candidates,t):
+		"""
+		Method: Returns top t similar images from the candidates returned by LSH indexing 
+		while comparing with the query image.
+		query_image_id : query_image_id
+		image_feature_matrix : map of (image_ids, image_feature_vector)
+		image_candidates : indexed lsh candidates for the given query image
+		"""
 		similar_images = []
 		query_image_vector = np.array(image_feature_matrix[query_image_id])
 
+		"""
+		computing the similarity based on euclidean distance between query image vector and 
+		each candidate vector
+		"""
 		for candidate in image_candidates:
 			image_feature_vector = np.array(image_feature_matrix[candidate])
 			sim_distance = self.ut.compute_euclidean_distance(query_image_vector,image_feature_vector)
@@ -117,6 +136,11 @@ class Task5b():
 		return sorted(similar_images,key = lambda x:x[1],reverse=True)[:t]
 
 	def get_computed_latent_semantics(self,image_feature_semantics):
+		"""
+		Method: Returns the map of the (image_ids, image_feature_semantics) obtained as a result of
+		SVD.
+		image_feature_semantics : SVD derived latent semantics for image features
+		"""
 		entity_ids = list(self.image_feature_matrix.keys())
 		k_semantics_map = {}
 		for entity_id,value in zip(entity_ids,image_feature_semantics):
