@@ -25,6 +25,7 @@ class Task3_iterative():
 			initial_vector = [0]*len(graph)
 			for seed in seeds:
 				initial_vector[seed] = self.transition_probability
+			return initial_vector
 		else:
 			return [1.0/len(graph)]*len(graph)
 
@@ -71,11 +72,19 @@ class Task3_iterative():
 				if index == iter:
 					image_id_score_mapping[image_id] = pagerank_score[iter]
 		print("Top K images based on pagerank score\n")
-		op = open(constants.TASK3b_OUTPUT_FILE, "w")
-		op.write("K most dominant images are:\n")
-		for image_id, score in image_id_score_mapping.items():
-			op.write(str(image_id) + " " + str(score))
-			op.write("\n")
+		if(self.personalised == False):
+			op = open(constants.TASK3_OUTPUT_FILE, "w")
+			op.write("K most dominant images are:\n")
+			for image_id, score in image_id_score_mapping.items():
+				op.write(str(image_id))
+				op.write("\n")
+		else:
+			op = open(constants.TASK4_OUTPUT_FILE, "w")
+			op.write("K most dominant images are:\n")
+			for image_id, score in image_id_score_mapping.items():
+				op.write(str(image_id))
+				op.write("\n")
+
 		print(sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K])
 
 	def runner(self):
@@ -84,6 +93,7 @@ class Task3_iterative():
 			image_id_mapping = pickle.load(image_id_mapping_file)[1]
 			seeds = []
 			K = int(input("Enter the value of K: "))
+			initial_k = int(input("Enter the initial value of k: "))
 			if self.personalised:
 				print("Enter three image ids to compute PPR:\n")
 				image_id1 = input("Image id1:")
@@ -92,7 +102,10 @@ class Task3_iterative():
 				seeds.append(image_id_mapping[image_id2])
 				image_id3 = input("Image id3:")
 				seeds.append(image_id_mapping[image_id3])
-			graph = self.ut.create_adj_mat_from_red_file()
+			import pdb
+			pdb.set_trace()
+			graph = self.ut.create_adj_mat_from_red_file(initial_k)
+			pdb.set_trace()
 			k_dominant_images = self.pagerank(graph, K, seeds)
 
 		except Exception as e:
