@@ -18,7 +18,7 @@ class Task5b():
 		"""
 		# sample images for test to check the bucket distribution
 		L_layer_count = 3
-		k_hash_size = 5
+		k_hash_size = 3
 		#lsh = Task5aLSH(L_layer_count,k_hash_size,self.feature_count)
 
 		lsh = Task5aLSH(L_layer_count,k_hash_size,image_feature_matrix,w_parameter=2,feature_count=self.feature_count)
@@ -27,18 +27,18 @@ class Task5b():
 
 		k_count = 0
 		max_key_size = -1
-		for i,table in enumerate(lsh.hash_tables):
-			print("For Hash table",i)
-			for key, val in table.hash_table.items():
-				if len(key) < k_hash_size:
-					k_count+=1
-				if len(key) > max_key_size:
-					max_key_size = len(key)
-				print('Key/Hash: ', key, ' Value: ', val)
-				print('-----------------\n')
+		# for i,table in enumerate(lsh.hash_tables):
+		# 	print("For Hash table",i)
+		# 	for key, val in table.hash_table.items():
+		# 		if len(key) < k_hash_size:
+		# 			k_count+=1
+		# 		if len(key) > max_key_size:
+		# 			max_key_size = len(key)
+		# 		print('Key/Hash: ', key, ' Value: ', val)
+		# 		print('-----------------\n')
 
-		print("K count",k_count)
-		print("max key size",max_key_size)
+		# print("K count",k_count)
+		# print("max key size",max_key_size)
 
 		#self.fill_all_hashtables(image_feature_matrix)
 

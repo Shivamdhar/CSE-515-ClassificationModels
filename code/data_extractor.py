@@ -3,8 +3,10 @@ This module contains data parsing methods.
 """
 from collections import OrderedDict
 import constants
+from functools import reduce
 import numpy as np
 import os
+import operator
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import xml.etree.ElementTree as et
@@ -50,6 +52,7 @@ class DataExtractor(object):
 		"""
 		visual_dir_path = constants.PROCESSED_VISUAL_DESCRIPTORS_DIR_PATH
 		list_of_files = os.listdir(visual_dir_path)
+		list_of_files.sort()
 		"""
 		color models options
 		"""
@@ -62,29 +65,41 @@ class DataExtractor(object):
 		#color_models = ["CM", "CM3x3", "CN", "CN3x3", "CSD"]
 		color_models = constants.MODELS
 		model_map = {}
+		image_ids = []
 		for filename in list_of_files:
 			model_name = filename.split(" ")[1].replace(".csv","")
 			df = pd.read_csv(os.path.join(visual_dir_path,filename), header = None)
+			image_ids = df.iloc[:,0].tolist()
+			features = df.iloc[:,1:]
+			minmax_scaler = MinMaxScaler()
+			features_scaled = minmax_scaler.fit_transform(features)
+
+
 			if model_name in model_map:
 				#concat the dataframe with earlier df (prev location)
-				pass
-				model_map[model_name] += [df]
+				model_map[model_name]['features'] += [pd.DataFrame(features_scaled)]
+				if image_ids not in model_map[model_name]['image_ids']:
+					model_map[model_name]['image_ids'].append(image_ids)
 			else:
-				model_map[model_name] = [df]
+				#image_ids += df.iloc[:,0].tolist()
+				model_map[model_name] = {'features' : [pd.DataFrame(features_scaled)],'image_ids':[image_ids]}
 
 		image_ids = []
 		for k in model_map.keys():
-			model_map[k] = pd.concat(model_map[k])
+			model_map[k]['features'] = pd.concat(model_map[k]['features'])
 			if image_ids == []:
-				image_ids = model_map[k].iloc[:,0].tolist()
+				image_ids = reduce(operator.concat, model_map[k]['image_ids'])
+
+			#image_ids += model_map[k]['image_ids']
+				#image_ids = model_map[k].iloc[:,0].tolist()
 
 		final_features = []
 		for df in model_map.values():
 			# min scale each df for a given model and store in the list
 			#image_ids = df.iloc[:,0].to_frame
-			features = df.iloc[:,1:]
+			#features = df.iloc[:,1:]
 			minmax_scaler = MinMaxScaler()
-			features_scaled = minmax_scaler.fit_transform(features)
+			features_scaled = minmax_scaler.fit_transform(df['features'])
 			final_features.append(features_scaled)
 
 		combined_features = np.concatenate(final_features,axis=1)
@@ -101,7 +116,7 @@ class DataExtractor(object):
 
 		# final_frame = np.concatenate([np.array(image_ids),combined_features],axis=1)
 
-		# numpy.savetxt('final_process_file.txt', final_frame, delimiter = ',')
+		np.savetxt('final_process_file.txt', combined_features, delimiter = ',')
 
 		# final_frame.to_csv('final_process_file.csv', sep = ',', \
 		# 	encoding = 'utf-8', index = False, header = False)
@@ -109,7 +124,9 @@ class DataExtractor(object):
 		image_feature_matrix = {}
 
 		# Representing image ids as integer
-		image_ids = list(map(int,image_ids))
+		image_ids = list((map(int,image_ids)))
+
+		np.savetxt('final_image_ids.txt', image_ids, fmt="%i")
 
 		for image_id,vector in zip(image_ids,combined_features):
 			image_feature_matrix[image_id] = vector
