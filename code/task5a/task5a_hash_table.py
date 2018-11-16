@@ -78,3 +78,40 @@ class Task5aHashTable:
 	def __getitem__(self, input_vector):
 		hash_value = self.generate_hash(input_vector)
 		return self.hash_table.get(hash_value, [])
+
+	"""
+	Method Explanation:
+		. A helper to get_item_for_reduced_k()
+		. Gives a reduced representation of the hash with 8, 16, 24... bits subtracted from the end depending on the k_value
+	Input(s):
+		current_hash_code -- the current hash_code of size 8*self.k_hash_size
+		k_value -- a value lesser than self.k_hash_size
+	Output:
+		A reduced representation of the current_hash_code.
+	"""
+	def get_reduced_hash_code(self, current_hash_code, k_value):
+		if (k_value == self.k_hash_size) or (k_value == 0) or (self.k_hash_size - k_value < 0):
+			return current_hash_code
+		return current_hash_code[:(len(current_hash_code)-8*(self.k_hash_size - k_value))]
+	
+	"""
+	Method Explanation:
+		. A helper for nearest neighbor search where if enough candidates are not retrieved for the current k_value, we reduce k iteratively
+		  to get all candidate nearest neighbors.
+	Input(s):
+		input_vector -- The query image represented as a vector.
+		k_value -- A value of the number of hash functions that is lesser than self.k_hash_size
+	Output(s):
+	"""
+	def get_item_for_reduced_k(self, input_vector, k_value):
+		result_list = list()
+		hash_code_key = self.generate_hash(input_vector)
+		reduced_hash_code_key = self.get_reduced_hash_code(hash_code_key, k_value) # hash_code_key[:(len(hash_code_key)-8*(self.k_hash_size - k_value))]
+		
+		for hash_code, imageid_list in self.hash_table.items():
+			reduced_hash_code = self.get_reduced_hash_code(hash_code, k_value)
+			if reduced_hash_code_key == reduced_hash_code:
+				result_list.extend(imageid_list)
+		
+		return result_list
+			
