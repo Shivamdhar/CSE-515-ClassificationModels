@@ -27,8 +27,8 @@ class PreProcessor(object):
 		# self.remove_duplicates_from_visual_descriptor_dataset()
 		# self.rename_image_ids_from_visual_descriptor_dataset()
 		# self.add_missing_objects_to_dataset()
-		# self.transform_graph_file_to_dict_graph()
-		self.transform_edgelist_to_list_of_list_graph()
+		self.transform_graph_file_to_dict_graph()
+		# self.transform_edgelist_to_list_of_list_graph()
 
 	def remove_duplicates_from_visual_descriptor_dataset(self):
 		"""
@@ -148,7 +148,7 @@ class PreProcessor(object):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		graph_dict = []
-		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/graph_file.txt', 'r') as graph_file:
+		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/reduced_graph_file.txt', 'r') as graph_file:
 			image1 = ""
 			cnt = -1
 			for line in graph_file:

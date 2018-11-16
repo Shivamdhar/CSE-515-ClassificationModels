@@ -35,11 +35,33 @@ class Util():
 		graph_dict_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "graph_dict.pickle", "rb")
 		objects = pickle.load(graph_dict_file)
 
+		import pdb
+		# pdb.set_trace()
 		graph = objects[1]
 		adj_matrix = [[0]*len(graph)]*len(graph)
 		for image_row in graph:
 			for edge, score in image_row.items():
 				adj_matrix[edge[0]][edge[1]] = 1
+
+		return adj_matrix
+
+	def create_adj_mat_from_red_file(self, initial_k):
+
+		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+		image_id_mapping = pickle.load(image_id_mapping_file)[1]
+
+		graph_file = open(constants.GRAPH_FILE, "r")
+		edges = graph_file.readlines()
+
+		graph_file_len = len(edges)
+		size_of_graph = graph_file_len // initial_k
+		adj_matrix = [[0] * size_of_graph] * size_of_graph
+
+		for line in edges:
+			temp = line.split(" ")
+			if temp[0] == temp[1]:
+				continue
+			adj_matrix[image_id_mapping[temp[0]]][image_id_mapping[temp[1]]] = 1
 
 		return adj_matrix
 

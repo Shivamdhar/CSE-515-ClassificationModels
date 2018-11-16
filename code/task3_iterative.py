@@ -16,7 +16,7 @@ class Task3_iterative():
 		pointing_nodes_list = self.derive_pointing_nodes_list(graph_transpose)
 
 		final_pagerank_vector = self.converge(pagerank_vector, out_degree_list, pointing_nodes_list)
-		self.top_k(final_pagerank_vector)
+		self.top_k(final_pagerank_vector, K)
 
 	def initialize_pagerank_vector(self, graph):
 		return [1.0/len(graph)]*len(graph)
@@ -34,16 +34,18 @@ class Task3_iterative():
 			pointing_nodes_list.append(local_pointing_nodes_list)
 		return pointing_nodes_list
 
-	def converge(self, pagerank_vector, out_degree_list, pointing_nodes_list, default_iterations=100):
+	def converge(self, pagerank_vector, out_degree_list, pointing_nodes_list, default_iterations=5):
 		iterations = 0
-		pg_vector = pagerank_vector
+		pg_vectors = [pagerank_vector]
 		while(iterations < default_iterations):
-			for node in range(len(pagerank_vector)):
+			pg_vector = [0]*len(pg_vectors[-1])
+			for node in range(len(pg_vectors[0])):
 				nodes_with_incoming_edges = pointing_nodes_list[node]
-				right_operand = self.random_walk(nodes_with_incoming_edges, out_degree_list, pg_vector)
-				pg_vector[node] = (1-d) + d*(right_operand)
+				right_operand = self.random_walk(nodes_with_incoming_edges, out_degree_list, pg_vectors[-1])
+				pg_vector[node] = (1-self.d) + np.multiply(self.d, right_operand)
+			pg_vectors.append(pg_vector)
 			iterations += 1
-		return pg_vector
+		return pg_vectors[-1]
 
 	def random_walk(self, nodes_with_incoming_edges, out_degree_list, pg_vector):
 		sum_random_nodes = 0
@@ -62,14 +64,17 @@ class Task3_iterative():
 				if index == iter:
 					image_id_score_mapping[image_id] = pagerank_score[iter]
 		print("Top K images based on pagerank score\n")
+		op = open(constants.TASK3b_OUTPUT_FILE, "w")
+		op.write("K most dominant images are:\n")
+		for image_id, score in image_id_score_mapping.items():
+			op.write(str(image_id) + " " + str(score))
+			op.write("\n")
 		print(sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K])
 
 	def runner(self):
 		try:
-			image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
-			image_id_mapping = pickle.load(image_id_mapping_file)[1]
 			K = int(input("Enter the value of K: "))
-			graph = self.ut.fetch_adjacency_matrix()
+			graph = self.ut.create_adj_mat_from_red_file(7)
 			k_dominant_images = self.pagerank(graph, K)
 
 		except Exception as e:

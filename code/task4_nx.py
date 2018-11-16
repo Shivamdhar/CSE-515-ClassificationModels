@@ -101,6 +101,13 @@ class Task4():
 			elif(key == seed_3):
 				personalised_dict[key] = 0.33
 
-		page_rank_values = self.PageRank(G, personalization=personalised_dict)
-		sorted_by_value = sorted(page_rank_values.items(), key=lambda kv: kv[1], reverse = True)
-		print(sorted_by_value[:value_of_k])
+		# import pdb
+		# pdb.set_trace()
+		page_rank_values = self.PageRank(G, personalization = personalised_dict)
+		sorted_by_value = sorted(page_rank_values.items(), key=lambda kv: kv[1], reverse = True)[:value_of_k]
+		op = open(constants.TASK4NX_OUTPUT_FILE, "w")
+		op.write("K most dominant images are:\n")
+		for image in sorted_by_value:
+			op.write(str(list(image)[0]))
+			op.write("\n")
+		print(sorted_by_value)
