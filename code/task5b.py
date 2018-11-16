@@ -12,16 +12,16 @@ class Task5b():
 		self.ut = Util()
 		self.data_extractor = DataExtractor()
 
-	def get_indexed_image_candidates(self,image_feature_matrix,query_image_id):
+	def get_indexed_image_candidates(self,image_feature_matrix,query_image_id,t):
 		"""
 		Testing function
 		"""
 		# sample images for test to check the bucket distribution
-		L_layer_count = 3
-		k_hash_size = 3
+		L_layer_count = 10
+		k_hash_size = 5
 		#lsh = Task5aLSH(L_layer_count,k_hash_size,self.feature_count)
 
-		lsh = Task5aLSH(L_layer_count,k_hash_size,image_feature_matrix,w_parameter=2,feature_count=self.feature_count)
+		lsh = Task5aLSH(L_layer_count,k_hash_size,image_feature_matrix,w_parameter=72,feature_count=self.feature_count)
 
 		self.hash_tables = lsh.hash_tables
 
@@ -51,28 +51,42 @@ class Task5b():
 		lsh_images = []
 
 		#count = 0
-		for image,vector in image_feature_matrix.items():
-			# if count > 5:
-			# 	break
-			lsh_images.append(lsh.__getitem__(vector))
-			#count+=1
+		# for image,vector in image_feature_matrix.items():
+		# 	# if count > 5:
+		# 	# 	break
+		# 	#lsh_images.append(lsh.__getitem__(vector))
+		# 	lsh_images.append(lsh.get_items_for_reduced_k(vector,k_hash_size))
+		# 	#count+=1
 
-		# for image in images:
-		# 	vector = image_feature_matrix[image]
-		# 	lsh_images.append(lsh.__getitem__(vector))
+		# # for image in images:
+		# # 	vector = image_feature_matrix[image]
+		# # 	lsh_images.append(lsh.__getitem__(vector))
 
 		# print("LSH images",lsh_images,len(lsh_images))
 
 		#lsh_images = lsh.__getitem__(image_feature_matrix[query_image_id])
 
-		count = 0
-		for i,v in enumerate(lsh_images):
-			if len(v) == 1:
-				print("index",i,v)
-				count+=1
-		print("Singular images",count)
+		# count = 0
+		# for i,v in enumerate(lsh_images):
+		# 	if len(v) == 1:
+		# 		print("index",i,v)
+		# 		count+=1
+		# print("Singular images",count)
 
+		#lsh_images = lsh.__getitem__(image_feature_matrix[query_image_id])
+
+		k = k_hash_size
 		lsh_images = lsh.__getitem__(image_feature_matrix[query_image_id])
+		while(True):
+			if len(lsh_images) < t:
+				k = k - 1
+				if k < 0:
+					break;
+				lsh_images = lsh.get_items_for_reduced_k(image_feature_matrix[query_image_id],k)
+			else:
+				break;
+		print("K",k)
+
 		print("Imge count",len(lsh_images))
 
 		return lsh_images
@@ -130,7 +144,7 @@ class Task5b():
 		self.feature_count = 256
 
 		indexed_image_candidates = self.get_indexed_image_candidates(computed_image_feature_matrix,
-			int(image_id))
+			int(image_id),t)
 
 		#similar_images = self.get_top_5_similar_images(image_feature_matrix,image_id)
 

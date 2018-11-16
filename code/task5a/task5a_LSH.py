@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-<<<<<<< HEAD
 from task5a.task5a_hash_table import Task5aHashTable
+#from task5a_hash_table import Task5aHashTable
 
 """ Ha,b(v) = |_(r.v + b)/w_| --- (1) """
 class Task5aLSH:
@@ -24,7 +24,7 @@ class Task5aLSH:
 			print('Initializing Hash Table: ', value)
 			self.hash_tables.append(Task5aHashTable(self.k_hash_functions_per_layer, self.feature_count, self.w_parameter))
 
-		self.fill_all_hashtables
+		self.fill_all_hashtables()
 
 # =======
 # from task5a_hash_table import Task5aHashTable
@@ -64,6 +64,13 @@ class Task5aLSH:
 		for table in self.hash_tables:
 			label_list.extend(table[input_vector])
 		return list(set(label_list))
+
+	def get_items_for_reduced_k(self, input_vector,k):
+		label_list = list()
+		for table in self.hash_tables:
+			label_list.extend(table.get_item_for_reduced_k(input_vector,k))
+		return list(set(label_list))
+
 
 	"""
 	Method Explanation:

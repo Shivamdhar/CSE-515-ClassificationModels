@@ -14,7 +14,7 @@ class Task5aHashTable:
 		self.feature_count = feature_count
 		self.hash_table = dict()
 		self.projections = self.init_projections()
-		print('Projections: ', self.projections)
+		#print('Projections: ', self.projections)
 		self.w_parameter = w_parameter
 		self.b_offsets = self.init_b_offsets() # Initialize 'k' number of random shifts
 		# self.b_offset = np.random.uniform(0, self.w_parameter)
@@ -107,9 +107,11 @@ class Task5aHashTable:
 		result_list = list()
 		hash_code_key = self.generate_hash(input_vector)
 		reduced_hash_code_key = self.get_reduced_hash_code(hash_code_key, k_value) # hash_code_key[:(len(hash_code_key)-8*(self.k_hash_size - k_value))]
-		
+		print("reduced_hash_code_key",reduced_hash_code_key)
+
 		for hash_code, imageid_list in self.hash_table.items():
 			reduced_hash_code = self.get_reduced_hash_code(hash_code, k_value)
+			print("reduced_hash_code",reduced_hash_code)
 			if reduced_hash_code_key == reduced_hash_code:
 				result_list.extend(imageid_list)
 		
