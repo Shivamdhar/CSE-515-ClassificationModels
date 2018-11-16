@@ -8,18 +8,25 @@ class Task3_iterative():
 	def __init__(self, personalised = False):
 		self.ut = Util()
 		self.d = 0.85
+		self.personalised = personalised
+		self.transition_probability = 1.0/3
 
-	def pagerank(self, graph, K):
-		pagerank_vector = self.initialize_pagerank_vector(graph)
+	def pagerank(self, graph, K, seeds=[]):
+		pagerank_vector = self.initialize_pagerank_vector(graph, seeds)
 		graph_transpose = np.array(graph).transpose()
 		out_degree_list = self.calculate_node_outdegree(graph)
 		pointing_nodes_list = self.derive_pointing_nodes_list(graph_transpose)
 
 		final_pagerank_vector = self.converge(pagerank_vector, out_degree_list, pointing_nodes_list)
-		self.top_k(final_pagerank_vector)
+		self.top_k(final_pagerank_vector, K)
 
-	def initialize_pagerank_vector(self, graph):
-		return [1.0/len(graph)]*len(graph)
+	def initialize_pagerank_vector(self, graph, seeds):
+		if(self.personalised):
+			initial_vector = [0]*len(graph)
+			for seed in seeds:
+				initial_vector[seed] = self.transition_probability
+		else:
+			return [1.0/len(graph)]*len(graph)
 
 	def calculate_node_outdegree(self, graph):
 		return [sum(row) for row in graph]
@@ -41,7 +48,7 @@ class Task3_iterative():
 			for node in range(len(pagerank_vector)):
 				nodes_with_incoming_edges = pointing_nodes_list[node]
 				right_operand = self.random_walk(nodes_with_incoming_edges, out_degree_list, pg_vector)
-				pg_vector[node] = (1-d) + d*(right_operand)
+				pg_vector[node] = (1-self.d) + self.d*(right_operand)
 			iterations += 1
 		return pg_vector
 
@@ -68,9 +75,18 @@ class Task3_iterative():
 		try:
 			image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 			image_id_mapping = pickle.load(image_id_mapping_file)[1]
+			seeds = []
 			K = int(input("Enter the value of K: "))
+			if self.personalised:
+				print("Enter three image ids to compute PPR:\n")
+				image_id1 = input("Image id1:")
+				seeds.append(image_id_mapping[image_id1])
+				image_id2 = input("Image id2:")
+				seeds.append(image_id_mapping[image_id2])
+				image_id3 = input("Image id3:")
+				seeds.append(image_id_mapping[image_id3])
 			graph = self.ut.fetch_adjacency_matrix()
-			k_dominant_images = self.pagerank(graph, K)
+			k_dominant_images = self.pagerank(graph, K, seeds)
 
 		except Exception as e:
 			print(constants.GENERIC_EXCEPTION_MESSAGE + "," + str(type(e)) + "::" + str(e.args))
