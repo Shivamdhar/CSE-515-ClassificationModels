@@ -52,6 +52,14 @@ class Task3():
 			if iter in image_ids:
 				transport_matrix[iter] = [self.transportation_probability] * len(transport_matrix[iter])
 
+		transposed_transport_matrix = [*zip(*transport_matrix)]
+
+		for iter in transposed_transport_matrix:
+			if iter in image_ids:
+				transposed_transport_matrix[iter] = [self.transportation_probability] * len(transposed_transport_matrix[iter])
+
+		transport_matrix = [*zip(*transposed_transport_matrix)]
+
 		return np.multiply((1 - self.beta), transport_matrix)
 
 	def compute_M(self, graph):
@@ -90,9 +98,23 @@ class Task3():
 		for iter in range(0, len(pagerank_score)):
 			for image_id, index in image_id_mapping.items():
 				if index == iter:
-					image_id_score_mapping[image_id] = pagerank_score[iter]
+					image_id_score_mapping[image_id] = abs(pagerank_score[iter])
 		print("Top K images based on pagerank score\n")
-		print(sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K])
+		top_k_images = sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K]
+		print(top_k_images)
+		if(self.personalised == False):
+			op = open(constants.TASK3_OUTPUT_FILE, "w")
+			op.write("K most dominant images are:\n")
+			for image in top_k_images:
+				op.write(list(image)[0])
+				op.write("\n")
+		else:
+			op = open(constants.TASK4_OUTPUT_FILE, "w")
+			op.write("K most dominant images are:\n")
+			for image in top_k_images:
+				op.write(list(image)[0])
+				op.write("\n")
+
 
 	def runner(self):
 		try:

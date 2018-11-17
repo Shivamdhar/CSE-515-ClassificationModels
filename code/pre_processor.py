@@ -24,10 +24,10 @@ class PreProcessor(object):
 		"""
 		Any other preprocessing needed can be called from pre_process method.
 		"""
-		# self.remove_duplicates_from_visual_descriptor_dataset()
-		# self.rename_image_ids_from_visual_descriptor_dataset()
-		# self.add_missing_objects_to_dataset()
-		# self.transform_graph_file_to_dict_graph()
+		self.remove_duplicates_from_visual_descriptor_dataset()
+		self.rename_image_ids_from_visual_descriptor_dataset()
+		self.add_missing_objects_to_dataset()
+		self.transform_graph_file_to_dict_graph()
 		self.transform_edgelist_to_list_of_list_graph()
 
 	def remove_duplicates_from_visual_descriptor_dataset(self):
@@ -128,7 +128,7 @@ class PreProcessor(object):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		graph_list = []
-		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/graph_file.txt', 'r') as graph_file:
+		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/entire_graph_file.txt', 'r') as graph_file:
 			image1 = ""
 			for line in graph_file:
 				temp = line.replace("\n", "").split(" ")
@@ -148,7 +148,7 @@ class PreProcessor(object):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		graph_dict = []
-		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/graph_file.txt', 'r') as graph_file:
+		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/entire_graph_file.txt', 'r') as graph_file:
 			image1 = ""
 			cnt = -1
 			for line in graph_file:
@@ -161,7 +161,7 @@ class PreProcessor(object):
 				else:
 					graph_dict[cnt].update({(image_id_mapping[temp[0]], image_id_mapping[temp[1]]): float(temp[2])})
 
-		graph_dict_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "graph_dict.pickle", "wb")
+		graph_dict_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "entire_graph_dict.pickle", "wb")
 
 		pickle.dump(["Object", graph_dict], graph_dict_file)
 		graph_dict_file.close()
