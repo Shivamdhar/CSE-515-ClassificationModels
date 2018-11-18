@@ -57,7 +57,7 @@ class Task5aHashTable:
 		for index, row_data in enumerate(self.projections):
 			random_vector_transpose = row_data.transpose()
 			current_hash = np.floor((np.dot(input_vector, random_vector_transpose) + self.b_offsets[index])/self.w_parameter).astype('int')
-			bit_representation = np.binary_repr(current_hash, 8) # "{:08b}".format(current_hash & 0xffffffff)
+			bit_representation = np.binary_repr(current_hash, 4) # "{:08b}".format(current_hash & 0xffffffff)
 			hash_code+= bit_representation
 		return hash_code
 
@@ -92,7 +92,7 @@ class Task5aHashTable:
 	def get_reduced_hash_code(self, current_hash_code, k_value):
 		if (k_value == self.k_hash_size) or (k_value == 0) or (self.k_hash_size - k_value < 0):
 			return current_hash_code
-		return current_hash_code[:(len(current_hash_code)-8*(self.k_hash_size - k_value))]
+		return current_hash_code[:(len(current_hash_code)-4*(self.k_hash_size - k_value))]
 	
 	"""
 	Method Explanation:

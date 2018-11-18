@@ -57,13 +57,13 @@ class DataExtractor(object):
 		color models options
 		"""
 		#color_models = ["LBP3x3", "CM3x3", "GLRLM"]
-		#color_models = ["CN3x3", "HOG", "CM3x3","CSD"] #last current
+		color_models = ["CN3x3", "HOG", "CM3x3","CSD"] #last current
 		#color_models = ["GLRLM", "GLRLM3x3"]
 		#color_models = ["CM", "CM3x3", "CN", "CN3x3", "CSD"]
 		#color_models = ["CN3x3", "HOG", "CM3x3","CSD","LBP"]
 		#color_models = ["CN3x3", "HOG", "CM3x3"]
 		#color_models = ["CM", "CM3x3", "CN", "CN3x3", "CSD"]
-		color_models = constants.MODELS
+		#color_models = constants.MODELS
 		model_map = {}
 		image_ids = []
 		for filename in list_of_files:
@@ -83,6 +83,26 @@ class DataExtractor(object):
 			else:
 				#image_ids += df.iloc[:,0].tolist()
 				model_map[model_name] = {'features' : [pd.DataFrame(features_scaled)],'image_ids':[image_ids]}
+# =======
+# 			if model_name in color_models:
+# 				df = pd.read_csv(os.path.join(visual_dir_path,filename), header = None)
+# 				image_ids = df.iloc[:,0].tolist()
+# 				features = df.iloc[:,1:]
+# 				# minmax_scaler = MinMaxScaler()
+# 				# features_scaled = minmax_scaler.fit_transform(features)
+
+
+# 				if model_name in model_map:
+# 					#concat the dataframe with earlier df (prev location)
+# 					model_map[model_name]['features'] += [features]
+# 					#model_map[model_name]['features'] += [pd.DataFrame(features_scaled)]
+# 					if image_ids not in model_map[model_name]['image_ids']:
+# 						model_map[model_name]['image_ids'].append(image_ids)
+# 				else:
+# 					#image_ids += df.iloc[:,0].tolist()
+# 					model_map[model_name] = {'features' : [features],'image_ids':[image_ids]}
+# 					#model_map[model_name] = {'features' : [pd.DataFrame(features_scaled)],'image_ids':[image_ids]}
+# >>>>>>> Stashed changes
 
 		image_ids = []
 		for k in model_map.keys():
