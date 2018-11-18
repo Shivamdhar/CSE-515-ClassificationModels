@@ -1,7 +1,7 @@
 import constants
+import pickle
 import scipy
 from util import Util
-import pickle
 
 class Task2a():
 	def __init__(self):
@@ -10,20 +10,26 @@ class Task2a():
 	def anglular_clustering(self, graph, c):
 		"""
 		1. perform SVD on the adjacency matrix.
-		2. find top k singular vectors corresponding to the largest eigen values
-		3. k eigen vectors form the clusters
-		4. Now, assign each node to the cluster by finding max value in the row for these vectors.
+		2. find top k singular vectors corresponding to the largest eigen values.
+		3. k eigen vectors form the clusters.
+		4. assign each node to the cluster by finding max value in the row for these vectors.
 		"""
 		top_singular_vector_matrix = self.fetch_singular_vectors(graph, c)
 		c_clusters = self.partition(top_singular_vector_matrix)
 		return c_clusters
 	
 	def fetch_singular_vectors(self, graph, c):
+		"""
+		returns top c singular vectors for the similarity graph passed.
+		"""
 		sparse_matrix = scipy.sparse.csc_matrix(graph, dtype=float)
 		u, s, vt = scipy.sparse.linalg.svds(graph, k=c)
 		return u
 
 	def partition(self, top_singular_vector_matrix):
+		"""
+		form partitions using max eigen value found in the singular matrix for each node.
+		"""
 		clusters = {}
 		for iter in range(len(top_singular_vector_matrix[0])):
 			clusters[iter] = []
@@ -36,6 +42,9 @@ class Task2a():
 		return clusters
 
 	def pretty_print(self, c_clusters):
+		"""
+		prints to terminal and writes to file given as input to the visualization module.
+		"""
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		id_image_mapping = { y:x for x,y in image_id_mapping.items() }

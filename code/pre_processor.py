@@ -110,7 +110,7 @@ class PreProcessor(object):
 			for model in self.models:
 				location_model_file = location + " " + model + ".csv"
 				data = pd.read_csv(constants.PROCESSED_VISUAL_DESCRIPTORS_DIR_PATH + location_model_file, dtype = \
-						{0:'str'}, header=None)
+						{0:"str"}, header=None)
 				location_model_image_ids = data[0]
 				missing_image_ids = set(location_image_id_map[location]) -\
 									set(location_model_image_ids).intersection(set(location_image_id_map[location]))
@@ -128,7 +128,7 @@ class PreProcessor(object):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		graph_list = []
-		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/entire_graph_file.txt', 'r') as graph_file:
+		with open(constants.ENTIRE_GRAPH_FILE, "r") as graph_file:
 			image1 = ""
 			for line in graph_file:
 				temp = line.replace("\n", "").split(" ")
@@ -148,7 +148,7 @@ class PreProcessor(object):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		graph_dict = []
-		with open ('/Users/shreyasdevan/Desktop/final_project/visualizations/entire_graph_file.txt', 'r') as graph_file:
+		with open(constants.ENTIRE_GRAPH_FILE, "r") as graph_file:
 			image1 = ""
 			cnt = -1
 			for line in graph_file:
