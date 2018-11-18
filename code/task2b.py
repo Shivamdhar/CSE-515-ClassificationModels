@@ -58,10 +58,20 @@ class Task2b():
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		id_image_mapping = {y:x for x,y in image_id_mapping.items()}
 		count = 0
+
+		op = open(constants.TASK2b_OUTPUT_FILE, "w")
+		# op.write("K clusters are:\n")
+	
 		for cluster, image_ids in c_clusters.items():
 			count += 1
 			print("Cluster " + str(count) + "\n ########################## \n")
+			op.write("Cluster " + str(count) + "\n")
+
 			ids = [id_image_mapping[image_id] for image_id in image_ids]
+			for temp in ids:
+				op.write(temp + "\n")
+			op.write("####\n")
+			
 			print("Cluster head: " + str(id_image_mapping[cluster]) + "\n" + "Clustering: " + str(ids) + "\n")
 
 	def runner(self):
