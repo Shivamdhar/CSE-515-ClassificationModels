@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from operator import itemgetter
-from sklearn.preprocessing import MinMaxScaler
 from task5_hash_table import Task5HashTable
 from task5_preprocessor import Task5PreProcessor
 
@@ -67,6 +66,7 @@ class Task5LSH:
 			k_value -- the value of number of hashes per layer that is lesser than what the user inputted.
 		"""
 		result_list = list()
+		return_dict = dict()
 		for table in self.hash_tables:
 			hash_code_key = table.generate_hash(input_vector)
 			reduced_hash_code_key = table.get_reduced_hash_code(hash_code_key, k_value) # hash_code_key[:(len(hash_code_key)-8*(self.k_hash_size - k_value))]
@@ -75,13 +75,18 @@ class Task5LSH:
 				reduced_hash_code = table.get_reduced_hash_code(hash_code, k_value)
 				if reduced_hash_code_key == reduced_hash_code:
 					result_list.extend(imageid_list)
-		
-		return list(set(result_list))
+
+		total_images_considered = len(result_list)
+		result_list = list(set(result_list))
+		unique_images_considered = len(result_list)
+		return_dict = { 'total_images_considered': total_images_considered, 'unique_images_considered': unique_images_considered, 'result_list': result_list }
+
+		return return_dict
 	
 	def get_atleast_t_candidate_nearest_neighbors(self, image_id, t):
 		"""
 		Method Explanation:
-			. Used for nearest neighbor querying.
+			. Used for getting atleast t candidate nearest neighbors.
 			. Starts with the user input of 'k' and tries to get 't' candidates as nearest neighbors.
 			. If 't' nearest neighbor candidates aren't found, the method iteratively reduces the value of k (simulates a reduced k for querying)
 			until atleast 't' of them are retrieved.
@@ -90,32 +95,39 @@ class Task5LSH:
 			t -- an integer representing the number of nearest neighbor candidates desired.
 		"""
 		candidate_list = list()
+		returned_dict = dict()
+		unique_images_considered = int()
+		total_images_considered = int()
 		current_k = self.k_hash_functions_per_layer
 		input_vector = self.data_dict[image_id] # representation of the image as a vector
 
-		candidate_list = self.__getitem__(input_vector) # Get it for k = self.k_hash_functions_per_layer
-		print('Returned Candidates: ', len(candidate_list))
+		returned_dict = self.__getitem__(input_vector) # First try getting atleast 't' candidates for k = self.k_hash_functions_per_layer
+		candidate_list = returned_dict['result_list']
 		if len(candidate_list) >= t:
-			return candidate_list # we have atleast t candidate neighbors, return them
+			return returned_dict # we have atleast t candidate neighbors, return them
 		
 		print('Did not get enough candidates (', len(candidate_list), '), reducing k...')
 		current_k-= 1 # reduce k and try again
+		
+		returned_dict.clear() # clear the dict for the new return values
 		candidate_list.clear()
 		while True:
 			if current_k == 0:
 				return self.image_ids # return all the images as candidates in the worst case
-			candidate_list = self.get_t_candidates_helper(input_vector, current_k)
-			print('Returned Candidates: ', len(candidate_list))
+			returned_dict = self.get_t_candidates_helper(input_vector, current_k)
+			candidate_list = returned_dict['result_list']
 			if len(candidate_list) >= t:
-				return candidate_list # we have atleast t candidate neighbors, return them
+				return returned_dict # we have atleast t candidate neighbors, return them
 			print('Did not get enough candidates (', len(candidate_list), '), reducing k...')
 			current_k-= 1 # decrease k and try again
+			returned_dict.clear()
 			candidate_list.clear()
 
 	def get_t_nearest_neighbors(self, query_imageid, candidate_imageids, t):
 		"""
 		Method Explanation:
-			. Gets 't' nearest neighbors from the candidate imageids.
+			. Gets 't' nearest neighbors from the candidate imageids in the reduced search space.
+			. Executed after getting atleast 't' candidates via get_atleast_t_candidate_nearest_neighbors()
 		Input(s):
 			query_imageid -- integer representing the image id of the query image.
 			candidate_imageid -- list of integers representing the candidate image ids for nearest neighbor search.
@@ -123,7 +135,6 @@ class Task5LSH:
 		Output:
 			A list of 't' nearest neighbor image ids.
 		"""
-
 		distance_list = list()
 		query_image_vector = self.data_dict[query_imageid]
 		for candidate_imageid in candidate_imageids:
@@ -131,7 +142,7 @@ class Task5LSH:
 			distance_list.append({ 'image_id': candidate_imageid, 'distance': np.linalg.norm(query_image_vector - candidate_image_vector)})
 		
 		sorted_list = sorted(distance_list, key=itemgetter('distance'))
-		return sorted_list[1:t+1] # as the first value in the list will be the query image itself
+		return sorted_list[:t] # as the first value in the list will be the query image itself
 
 
 	def fill_the_hashtable(self, table_instance):
@@ -166,10 +177,17 @@ class Task5LSH:
 		Input(s):
 			input_vector -- The representation of the image in the form of a vector.
 		"""
-		label_list = list()
+		result_list = list()
+		return_dict = dict()
 		for table in self.hash_tables:
-			label_list.extend(table[input_vector])
-		return list(set(label_list))
+			result_list.extend(table[input_vector])
+		
+		total_images_considered = len(result_list)
+		result_list = list(set(result_list))
+		unique_images_considered = len(result_list)
+		return_dict = { 'total_images_considered': total_images_considered, 'unique_images_considered': unique_images_considered, 'result_list': result_list }
+
+		return return_dict # list(set(result_list))
 
 	def __setitem__(self, input_vector, label):
 		"""
