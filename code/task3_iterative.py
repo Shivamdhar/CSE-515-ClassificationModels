@@ -9,7 +9,7 @@ class Task3_iterative():
 		self.ut = Util()
 		self.d = 0.85
 		self.personalised = personalised
-		self.transition_probability = 1.0/3
+		self.transition_probability = 10
 
 	def pagerank(self, graph, K, seeds=[]):
 		pagerank_vector = self.initialize_pagerank_vector(graph, seeds)
@@ -27,7 +27,7 @@ class Task3_iterative():
 				initial_vector[seed] = self.transition_probability
 			return initial_vector
 		else:
-			return [1.0/len(graph)]*len(graph)
+			return [1.0]*len(graph)
 
 	def calculate_node_outdegree(self, graph):
 		return [sum(row) for row in graph]
@@ -75,13 +75,13 @@ class Task3_iterative():
 		if(self.personalised == False):
 			op = open(constants.TASK3_OUTPUT_FILE, "w")
 			op.write("K most dominant images are:\n")
-			for image_id, score in image_id_score_mapping.items():
+			for image_id, score in sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K]:
 				op.write(str(image_id))
 				op.write("\n")
 		else:
 			op = open(constants.TASK4_OUTPUT_FILE, "w")
 			op.write("K most dominant images are:\n")
-			for image_id, score in image_id_score_mapping.items():
+			for image_id, score in sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K]:
 				op.write(str(image_id))
 				op.write("\n")
 
@@ -102,10 +102,8 @@ class Task3_iterative():
 				seeds.append(image_id_mapping[image_id2])
 				image_id3 = input("Image id3:")
 				seeds.append(image_id_mapping[image_id3])
-			import pdb
-			pdb.set_trace()
+
 			graph = self.ut.create_adj_mat_from_red_file(initial_k)
-			pdb.set_trace()
 			k_dominant_images = self.pagerank(graph, K, seeds)
 
 		except Exception as e:

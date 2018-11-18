@@ -1,6 +1,7 @@
 import constants
 import scipy
 from util import Util
+import pickle
 
 class Task2a():
 	def __init__(self):
@@ -28,13 +29,31 @@ class Task2a():
 			clusters[iter] = []
 
 		for node in range(len(top_singular_vector_matrix)):
-			index = top_singular_vector_matrix[node].index(max(top_singular_vector_matrix[node]))
+			max_value = max(top_singular_vector_matrix[node])
+			index = list(top_singular_vector_matrix[node]).index(max_value)
 			clusters[index].append(node)
 
 		return clusters
 
 	def pretty_print(self, c_clusters):
-		print(c_clusters)
+		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+		image_id_mapping = pickle.load(image_id_mapping_file)[1]
+		id_image_mapping = { y:x for x,y in image_id_mapping.items() }
+		count = 0
+
+		op = open(constants.TASK2a_OUTPUT_FILE, "w")
+
+		for cluster, image_ids in c_clusters.items():
+			count += 1
+			print("Cluster " + str(count) + "\n ########################## \n")
+			op.write("Cluster " + str(count) + "\n")
+
+			ids = [id_image_mapping[image_id] for image_id in image_ids]
+			for temp in ids:
+				op.write(temp + "\n")
+			op.write("####\n")
+			
+			print("Cluster head: " + str(id_image_mapping[cluster]) + "\n" + "Clustering: " + str(ids) + "\n")
 
 	def runner(self):
 		try:

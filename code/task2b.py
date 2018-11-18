@@ -2,7 +2,7 @@ import pickle
 import random
 from util import Util
 import constants
-
+import pdb
 class Task2b():
 	def __init__(self):
 		self.ut = Util()
@@ -22,16 +22,18 @@ class Task2b():
 		"""
 		FIXED: ensured distinct leaders in the leader set
 		"""
-		import pdb
-		# pdb.set_trace()
 		leaders = []
-		#initialse first leader
-		leaders.append(random.randint(0,len(graph)))
+		leaders.append(random.randint(0,len(graph))) #initialize first leader
 		for i in range(c_ - 1):
-			temp = sorted(graph[leaders[i]], reverse=True)
-			leader = graph[leaders[i]].index(temp[k-2])
-			if leader in leaders:
-				leader = graph[leaders[i]].index(temp[k-3])
+			temp_row = sorted(graph[leaders[i]], reverse=True)
+			leader = graph[leaders[i]].index(temp_row[k-2])
+			count = 3
+			while(count < k):
+				pdb.set_trace()
+				leader = graph[leaders[i]].index(temp_row[k-count])
+				if leader not in leaders:
+					break 
+				count += 1
 			leaders.append(leader)
 
 		return leaders
@@ -40,6 +42,7 @@ class Task2b():
 		clusters = {}
 		for leader in leaders:
 			clusters[leader] = []
+
 		return clusters
 
 	def pass_iteration(self, clusters, graph):
@@ -53,33 +56,44 @@ class Task2b():
 			if new_cluster == -1:
 				clusters[leaders[cluster_head]].append(image_iter)
 			else:
-				clusters[leaders[new_cluster]].append(image_iter)
+				index = leaders.index(new_cluster)
+				clusters[leaders[index]].append(image_iter)
 
 		return clusters
 
 	def preserve_cluster_balance(self, clusters):
-		inter_cluster_threshold = 30
+		inter_cluster_threshold = 100
 		cluster_length_map = {}
 		for key, value in clusters.items():
 			cluster_length_map[key] = len(value)
-		cluster_lengths = cluster_length_map.values()
+		cluster_lengths = list(cluster_length_map.values())
 		cluster_lengths.sort()
+
 		if cluster_lengths[-1] - cluster_lengths[0] > inter_cluster_threshold:
 			for key, value in clusters.items():
-				if value == cluster_lengths[0]:
+				if len(value) == cluster_lengths[0]:
 					return key
-		else:
-			return -1
+
+		return -1
 
 	def pretty_print(self, c_clusters):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		id_image_mapping = { y:x for x,y in image_id_mapping.items() }
 		count = 0
+
+		op = open(constants.TASK2b_OUTPUT_FILE, "w")
+	
 		for cluster, image_ids in c_clusters.items():
 			count += 1
 			print("Cluster " + str(count) + "\n ########################## \n")
+			op.write("Cluster " + str(count) + "\n")
+
 			ids = [id_image_mapping[image_id] for image_id in image_ids]
+			for temp in ids:
+				op.write(temp + "\n")
+			op.write("####\n")
+			
 			print("Cluster head: " + str(id_image_mapping[cluster]) + "\n" + "Clustering: " + str(ids) + "\n")
 
 	def runner(self):
