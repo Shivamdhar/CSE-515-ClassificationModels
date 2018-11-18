@@ -20,16 +20,17 @@ class Task5b():
 		indexing.
 		"""
 		#Parameters for LSH
-		L_layer_count = 10
-		k_hash_size = 5
+		L_layer_count = 3
+		k_hash_size = 2
 
 		#intantiating the LSH class
-		lsh = Task5aLSH(L_layer_count,k_hash_size,image_feature_matrix,w_parameter=72,feature_count=self.feature_count)
+		lsh = Task5aLSH(L_layer_count,k_hash_size,image_feature_matrix,w_parameter=6,feature_count=self.feature_count)
 
 		self.hash_tables = lsh.hash_tables
 
 		k_count = 0
 		max_key_size = -1
+		print("No of hash_tables",len(lsh.hash_tables))
 		# for i,table in enumerate(lsh.hash_tables):
 		# 	print("For Hash table",i)
 		# 	for key, val in table.hash_table.items():
@@ -37,7 +38,8 @@ class Task5b():
 		# 			k_count+=1
 		# 		if len(key) > max_key_size:
 		# 			max_key_size = len(key)
-		# 		print('Key/Hash: ', key, ' Value: ', val)
+		# 		print("values",len(val))
+		# 		print('Key/Hash: ', key)# ' Value: ', val)
 		# 		print('-----------------\n')
 
 		# print("K count",k_count)
@@ -84,18 +86,36 @@ class Task5b():
 		and accordingly call the helper method to fetch the candidates for reduced k if it applies
 		'''
 		k = k_hash_size
-		lsh_images = lsh.__getitem__(image_feature_matrix[query_image_id])
+		#lsh_images = lsh.__getitem__(image_feature_matrix[query_image_id])
+		candidates_threshold = 250
+		result_list = []
+
+		got_candidates = False
+		# for table_instance in lsh.hash_tables:
+		# 	k = k_hash_size
+		# 	print("KKK",k)
+		# 	while (True):
+		# 		k = k - 1
+		# 		print("KK",k)
+		# 		result_list.extend(table_instance.get_item_for_reduced_k(image_feature_matrix[query_image_id],k))
+		# 		result_list = list(set(result_list))
+		# 		print("LEN",len(result_list))
+		# 		if k < 0:
+		# 			break
+		# 		if len(result_list) <= candidates_threshold:
+		# 			got_candidates = True
+		# 			break
+		# 	if got_candidates:
+		# 		break
+		#print(result_list,len(result_list))
 		while(True):
-			if len(lsh_images) < t:
-				k = k - 1
-				if k < 0:
-					break;
-				lsh_images = lsh.get_items_for_reduced_k(image_feature_matrix[query_image_id],k)
-			else:
-				break;
+			k = k - 1
+			lsh_images = lsh.get_items_for_reduced_k(image_feature_matrix[query_image_id],k)
+			if len(lsh_images) <=candidates_threshold or k < 0:
+				break
 		print("K",k)
 
-		print("Imge count",len(lsh_images))
+		#print("Imge count",len(lsh_images))
 
 		return lsh_images
 

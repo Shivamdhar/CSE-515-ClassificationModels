@@ -71,18 +71,20 @@ class DataExtractor(object):
 			df = pd.read_csv(os.path.join(visual_dir_path,filename), header = None)
 			image_ids = df.iloc[:,0].tolist()
 			features = df.iloc[:,1:]
-			minmax_scaler = MinMaxScaler()
-			features_scaled = minmax_scaler.fit_transform(features)
+			# minmax_scaler = MinMaxScaler()
+			# features_scaled = minmax_scaler.fit_transform(features)
 
 
 			if model_name in model_map:
 				#concat the dataframe with earlier df (prev location)
-				model_map[model_name]['features'] += [pd.DataFrame(features_scaled)]
+				model_map[model_name]['features'] += [features]
+				#model_map[model_name]['features'] += [pd.DataFrame(features_scaled)]
 				if image_ids not in model_map[model_name]['image_ids']:
 					model_map[model_name]['image_ids'].append(image_ids)
 			else:
 				#image_ids += df.iloc[:,0].tolist()
-				model_map[model_name] = {'features' : [pd.DataFrame(features_scaled)],'image_ids':[image_ids]}
+				model_map[model_name] = {'features' : [features],'image_ids':[image_ids]}
+				#model_map[model_name] = {'features' : [pd.DataFrame(features_scaled)],'image_ids':[image_ids]}
 
 		image_ids = []
 		for k in model_map.keys():
