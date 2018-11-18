@@ -10,8 +10,8 @@ class Util():
 	def __init__(self):
 		pass
 
-	""" Returns the euclidean distance between vector_one and vetor_two """
 	def compute_euclidean_distance(self, vector_one, vector_two):
+		""" Returns the euclidean distance between vector_one and vetor_two """
 		return np.linalg.norm(vector_one - vector_two)
 
 	def fetch_dict_graph(self):
@@ -26,7 +26,10 @@ class Util():
 		return objects[1]
 
 	def create_adj_mat_from_red_file(self, initial_k, similarity=False):
-
+		"""
+		if similarity is false, adj_matrix represents connectivity between two nodes in the graph
+		if similarity is true, adj_matrix contains similarity between any two nodes in the graph 
+		"""
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 
@@ -52,5 +55,8 @@ class Util():
 		return adj_matrix
 
 	def image_id_mapping(self):
+		"""
+		returns image_id : index mapping
+		"""
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		return pickle.load(image_id_mapping_file)[1]
