@@ -2,7 +2,6 @@
 This module is a driver program which selects a particular task.
 """
 from task1 import Task1
-from task2 import Task2
 from task2a import Task2a
 from task2b import Task2b
 from task3 import Task3
