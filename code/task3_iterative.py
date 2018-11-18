@@ -12,6 +12,17 @@ class Task3_iterative():
 		self.transition_probability = 10
 
 	def pagerank(self, graph, K, seeds=[]):
+		"""
+		Pagerank is computed using iterative approach.
+		Initialize a pagerank vector with uniformly distributed probabilities to ensure each node gets a chance of being
+		randomly visited.
+		Compute pagerank score for each node which is defined in terms of all the nodes pointing to the current node.
+		If node A is pointed by node B and node C, then pagerank create_adj_mat_from_red_filer
+		node A = (1 - d) + d * ( (pagerank(B)/outdegree(B)) + (pagerank(C)/out_degree_listtdegree(C)) ).
+		Here d is damping factor with value 0.85.
+		Continue this over for a number of times, default set to 50 or until two consecutive iterations yield same
+		results.
+		"""
 		pagerank_vector = self.initialize_pagerank_vector(graph, seeds)
 		graph_transpose = np.array(graph).transpose()
 		out_degree_list = self.calculate_node_outdegree(graph)
@@ -21,6 +32,10 @@ class Task3_iterative():
 		self.top_k(final_pagerank_vector, K)
 
 	def initialize_pagerank_vector(self, graph, seeds):
+		"""
+		Initialize pagerank_vector with uniform probability distribution.
+		In case of PPR, give high values for seeds.
+		"""
 		if(self.personalised):
 			initial_vector = [0]*len(graph)
 			for seed in seeds:
@@ -33,6 +48,9 @@ class Task3_iterative():
 		return [sum(row) for row in graph]
 
 	def derive_pointing_nodes_list(self, graph):
+		"""
+		returns incoming nodes for a given node in the graph.
+		"""
 		pointing_nodes_list = []
 		for row in graph:
 			local_pointing_nodes_list = []
@@ -43,6 +61,9 @@ class Task3_iterative():
 		return pointing_nodes_list
 
 	def converge(self, pagerank_vector, out_degree_list, pointing_nodes_list, default_iterations=5):
+		"""
+		We have kept converging factor as default iterations of 50.
+		"""
 		iterations = 0
 		pg_vectors = [pagerank_vector]
 		while(iterations < default_iterations):

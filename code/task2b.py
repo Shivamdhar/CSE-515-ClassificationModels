@@ -1,8 +1,8 @@
+import constants
 import pickle
 import random
 from util import Util
-import constants
-import pdb
+
 class Task2b():
 	def __init__(self):
 		self.ut = Util()
@@ -18,18 +18,18 @@ class Task2b():
 		final_clusters = self.pass_iteration(clusters_heads, graph)
 		return final_clusters
 
-	def leader_selection(self, graph, c_, k):
+	def leader_selection(self, graph, c, k):
 		"""
-		FIXED: ensured distinct leaders in the leader set
+		1. first cluster head randomly selected.
+		2. remaining cluster heads should be unique and equal to the number of clusters passed.
 		"""
 		leaders = []
 		leaders.append(random.randint(0,len(graph))) #initialize first leader
-		for i in range(c_ - 1):
+		for i in range(c-1):
 			temp_row = sorted(graph[leaders[i]], reverse=True)
 			leader = graph[leaders[i]].index(temp_row[k-2])
 			count = 3
 			while(count < k):
-				pdb.set_trace()
 				leader = graph[leaders[i]].index(temp_row[k-count])
 				if leader not in leaders:
 					break 
@@ -46,6 +46,10 @@ class Task2b():
 		return clusters
 
 	def pass_iteration(self, clusters, graph):
+		"""
+		Assign each node in the graph to cluster based on similarity score. Also, we maintain a balance within the
+		clusters. Each pair of clusters can have maximum difference of 100 nodes.
+		"""
 		leaders = list(clusters.keys())
 		dict_graph = self.ut.fetch_dict_graph()
 		for image_iter in range(len(graph)):
@@ -62,6 +66,11 @@ class Task2b():
 		return clusters
 
 	def preserve_cluster_balance(self, clusters):
+		"""
+		returns -1 if a given node is not a cluster head already.
+		returns the new cluster head ensuring that balance between clusters is maintained, controlled by
+		inter_cluster_threshold.
+		"""
 		inter_cluster_threshold = 100
 		cluster_length_map = {}
 		for key, value in clusters.items():
@@ -77,6 +86,9 @@ class Task2b():
 		return -1
 
 	def pretty_print(self, c_clusters):
+		"""
+		prints output to terminal and writes to a file, which then is visualized using the presentation layer.
+		"""
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		id_image_mapping = { y:x for x,y in image_id_mapping.items() }
