@@ -34,7 +34,7 @@ class Task2a():
 		return clusters
 
 	def pretty_print(self, c_clusters):
-		print c_clusters
+		print(c_clusters)
 
 	def runner(self):
 		try:
