@@ -48,15 +48,33 @@ class Task2b():
 		for image_iter in range(len(graph)):
 			image_out_links = graph[image_iter]
 			leader_image_sim_list = [dict_graph[image_iter][(image_iter, leader)] for leader in leaders]
+			cluster_head = leader_image_sim_list.index(max(leader_image_sim_list))
+			new_cluster = self.preserve_cluster_balance(clusters)
+			if new_cluster == -1:
+				clusters[leaders[cluster_head]].append(image_iter)
+			else:
+				clusters[leaders[new_cluster]].append(image_iter)
 
-			max_img = leader_image_sim_list.index(max(leader_image_sim_list))
-			clusters[leaders[max_img]].append(image_iter)
 		return clusters
+
+	def preserve_cluster_balance(self, clusters):
+		inter_cluster_threshold = 30
+		cluster_length_map = {}
+		for key, value in clusters.items():
+			cluster_length_map[key] = len(value)
+		cluster_lengths = cluster_length_map.values()
+		cluster_lengths.sort()
+		if cluster_lengths[-1] - cluster_lengths[0] > inter_cluster_threshold:
+			for key, value in clusters.items():
+				if value == cluster_lengths[0]:
+					return key
+		else:
+			return -1
 
 	def pretty_print(self, c_clusters):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
-		id_image_mapping = {y:x for x,y in image_id_mapping.items()}
+		id_image_mapping = { y:x for x,y in image_id_mapping.items() }
 		count = 0
 		for cluster, image_ids in c_clusters.items():
 			count += 1
