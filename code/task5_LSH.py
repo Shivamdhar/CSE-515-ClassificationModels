@@ -40,7 +40,6 @@ class Task5LSH:
 
 			for index, image_id in enumerate(self.image_ids):
 				self.data_dict[image_id] = self.data_matrix[index]
-			# print('Initialized Data: ', self.data_dict[10045482563])
 			self.feature_count = 256
 		elif task == '5b':
 			data_dict = self.preprocessor.preprocess_MinMaxScaler()
@@ -51,7 +50,6 @@ class Task5LSH:
 
 			for index, image_id in enumerate(self.image_ids):
 				self.data_dict[image_id] = self.data_matrix[index]
-			# print('Initialized Data: ', self.data_dict[10045482563])
 			self.feature_count = 256
 
 	def get_t_candidates_helper(self, input_vector, k_value):
