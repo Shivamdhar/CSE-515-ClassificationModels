@@ -70,11 +70,6 @@ class Task5PreProcessor:
 		return to_return
 
 	def compute_latent_semantics(self, feature_matrix, k):
-		# feature_matrix = list(self.data_dict.values())
-		# U, S, Vt = np.linalg.svd(feature_matrix)
-
-		# concept_mapping = feature_matrix.dot(U[:, :k])
-		# return concept_mapping
 		"""
 		Method Explanation:
 			. Returns the latent semantic representation of the feature_matrix with 'k' concepts.
@@ -177,14 +172,8 @@ class Task5PreProcessor:
 					self.data_dict[key] = current_list # insert into data dict only if image id is already present
 			
 			temp_dict.clear() # clear the dictionary
-			
 
-		# print('Len of data_dict keys: ', len(list(self.data_dict.keys())))
-		# print('Len of data_dict values: ', len(self.data_dict[99225218]))
 		return self.data_dict
-
-# task5 = task5PreProcessor()
-# task5.preprocess()
 
 
 
