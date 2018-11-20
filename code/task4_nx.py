@@ -95,11 +95,11 @@ class Task4_nx():
 		#update the dict with seed values as 0.33 for each of the 3 seeds
 		for key, value in personalised_dict.items():
 			if(key == seed_1):
-				personalised_dict[key] = 0.33
+				personalised_dict[key] = 1
 			elif(key == seed_2):
-				personalised_dict[key] = 0.33
+				personalised_dict[key] = 1
 			elif(key == seed_3):
-				personalised_dict[key] = 0.33
+				personalised_dict[key] = 1
 				
 		page_rank_values = self.PageRank(G, personalization = personalised_dict)
 		sorted_by_value = sorted(page_rank_values.items(), key=lambda kv: kv[1], reverse = True)[:value_of_k]

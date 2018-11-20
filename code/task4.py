@@ -9,7 +9,7 @@ class Task4():
 		self.ut = Util()
 		self.d = 0.85
 
-	def pagerank(self, graph, K, seeds=[]):
+	def personalised_pagerank(self, graph, K, seeds=[]):
 		"""
 		Algorithm to compute PPR
 		1. Let vq=0, for all its N entries, except a ’1’ for the q-th entry.
@@ -31,24 +31,32 @@ class Task4():
 		return vq
 
 	def normalize_M(self, graph):
-		graph_transpose = np.transpose(graph)
+		graph_transpose = zip(*graph)
+		new_graph = []
 		for row in graph_transpose:
-			row = row / sum(row)
-		return np.transpose(graph_transpose)
+			sum_row = sum(row)
+			if sum_row == 0:
+				new_graph.append(row)
+				continue
+
+			new_graph.append([value/sum_row for value in row])
+		return np.transpose(new_graph)
 
 	def converge(self, uq, vq, M):
 		uq = self.compute_uq(uq, vq, M)
 		uq_list = []
 		uq_list.append(uq)
 		converged = False
-		while(!converged):
+		count = 0
+
+		while(count < 50):
+			count += 1
 			uq = self.compute_uq(uq_list[-1], vq, M)
-			if(uq == uq_list[-1]):
-				converged = True
+			
 		return uq_list[-1]
 
 	def compute_uq(self, uq, vq, M):
-		left_operand = np.multiply(M, uq)
+		left_operand = np.matmul(M, uq)
 		right_operand = np.multiply(vq, self.d)
 		uq = np.multiply((1-self.d), left_operand) + right_operand
 		return uq
@@ -64,20 +72,13 @@ class Task4():
 				if index == iter:
 					image_id_score_mapping[image_id] = pagerank_score[iter]
 		print("Top K images based on pagerank score\n")
-		if(self.personalised == False):
-			op = open(constants.TASK3_OUTPUT_FILE, "w")
-			op.write("K most dominant images are:\n")
-			for image_id, score in sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K]:
-				op.write(str(image_id))
-				op.write("\n")
-		else:
-			op = open(constants.TASK4_OUTPUT_FILE, "w")
-			op.write("K most dominant images are:\n")
-			for image_id, score in sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K]:
-				op.write(str(image_id))
-				op.write("\n")
+		op = open(constants.TASK4_OUTPUT_FILE, "w")
+		op.write("K most dominant images are (First 3 images are the seeds):\n")
+		for image_id, score in sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K + 3]:
+			op.write(str(image_id))
+			op.write("\n")
 
-		print(sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K])
+		print(sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K + 3])
 
 	def runner(self):
 		try:
@@ -86,17 +87,16 @@ class Task4():
 			seeds = []
 			K = int(input("Enter the value of K: "))
 			initial_k = int(input("Enter the initial value of k: "))
-			if self.personalised:
-				print("Enter three image ids to compute PPR:\n")
-				image_id1 = input("Image id1:")
-				seeds.append(image_id_mapping[image_id1])
-				image_id2 = input("Image id2:")
-				seeds.append(image_id_mapping[image_id2])
-				image_id3 = input("Image id3:")
-				seeds.append(image_id_mapping[image_id3])
+			print("Enter three image ids to compute PPR:\n")
+			image_id1 = input("Image id1:")
+			seeds.append(image_id_mapping[image_id1])
+			image_id2 = input("Image id2:")
+			seeds.append(image_id_mapping[image_id2])
+			image_id3 = input("Image id3:")
+			seeds.append(image_id_mapping[image_id3])
 
-			graph = self.ut.create_adj_mat_from_red_file(initial_k)
-			k_dominant_images = self.pagerank(graph, K, seeds)
+			graph = self.ut.create_adj_mat_from_red_file(initial_k, True)
+			k_dominant_images = self.personalised_pagerank(graph, K, seeds)
 
 		except Exception as e:
 			print(constants.GENERIC_EXCEPTION_MESSAGE + "," + str(type(e)) + "::" + str(e.args))
