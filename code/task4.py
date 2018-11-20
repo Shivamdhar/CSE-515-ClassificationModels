@@ -4,12 +4,10 @@ import pickle
 import scipy.sparse as sparse
 from util import Util
 
-class Task3_iterative():
-	def __init__(self, personalised = False):
+class Task4():
+	def __init__(self):
 		self.ut = Util()
 		self.d = 0.85
-		self.personalised = personalised
-		self.transition_probability = 10
 
 	def pagerank(self, graph, K, seeds=[]):
 		"""

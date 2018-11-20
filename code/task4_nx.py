@@ -3,7 +3,7 @@ from numpy import linalg as LA
 from util import Util
 import networkx as nx
 import constants
-class Task4():
+class Task4_nx():
 
 	def PageRank(self, G, alpha=0.85, personalization=None, 
 			 max_iter=100, tol=1.0e-6, nstart=None, weight='weight', 
