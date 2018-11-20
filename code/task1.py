@@ -17,7 +17,7 @@ class Task1():
 
 	def generate_imgximg_edgelist(self, image_list1, image_list2, image_feature_map, k):
 		""" Method: generate_imgximg_edgelist returns image to image similarity in form of an edge list """
-		imgximg_edgelist_file = open(constants.VISUALIZATIONS_DIR_PATH + "list_of_list_graph.txt", "w")
+		imgximg_edgelist_file = open(constants.VISUALIZATIONS_DIR_PATH + "entire_graph_file.txt", "w")
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "wb")
 		image_id_mapping = {}
 
