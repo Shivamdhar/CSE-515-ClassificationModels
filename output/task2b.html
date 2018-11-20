@@ -7,13 +7,17 @@
 <script type="text/javascript">
 	$(document).ready(function () {
 			$.ajax({
-				url: "/output_files/task3_output.txt",
+				url: "/output_files/task2b_output_file.txt",
 				dataType: "text",
 				success: function (data) {
 						var str = data;
 						var str_array = str.split('\n');
-						for (var i = 0; i < str_array.length - 1; i++) {
-							if(str_array[i].split(" ")[0]=="K"){
+						for (var i = 0; i < str_array.length; i++) {
+							if(str_array[i]=="####"){
+								var br_element = document.createElement("br");
+								$('#images').append(br_element);
+							}
+							else if(str_array[i].split(" ")[0]=="Cluster"){
 								var div_element = document.createElement("div");
 								var h3_element = document.createElement("h3");
 								h3_element.innerHTML = str_array[i];
@@ -31,16 +35,18 @@
 								div_element_2.innerHTML =str_array[i];
 								div_element_2.style = "width:200px;"
 								$(div_element_3).append(div_element_2);	
+
 								$('#images').append(div_element_3);
 							}
 						}
+
 				} 
 			});
 	});
 </script>
 </head>
 <body>
-<h1>Task 3</h1>
+<h1>Task 2</h1>
 
 <div id="images"></div>
 

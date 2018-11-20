@@ -50,7 +50,7 @@ class Task1():
 		reduced_graph_file.close()
 
 	def create_graph(self):
-		g = nx.read_edgelist(constants.VISUALIZATIONS_DIR_PATH + "graph_file.txt", nodetype=int, \
+		g = nx.read_edgelist(constants.VISUALIZATIONS_DIR_PATH + "reduced_graph_file.txt", nodetype=int, \
 							data=(('weight',float),), create_using=nx.DiGraph())
 		print("graph created")
 		return g
