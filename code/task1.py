@@ -18,7 +18,7 @@ class Task1():
 
 	def generate_imgximg_edgelist(self, image_list1, image_list2, image_feature_map, k):
 		""" Method: generate_imgximg_edgelist returns image to image similarity in form of an edge list """
-		imgximg_edgelist_file = open(constants.VISUALIZATIONS_DIR_PATH + "list_of_list_graph.txt", "w")
+		imgximg_edgelist_file = open(constants.VISUALIZATIONS_DIR_PATH + "entire_graph_file.txt", "w")
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "wb")
 		image_id_mapping = {}
 
@@ -45,16 +45,36 @@ class Task1():
 
 	def top_k(self, graph_list, k):
 		reduced_graph_file = open(constants.VISUALIZATIONS_DIR_PATH + "reduced_graph_file.txt", "a+")
+		visualise_graph_file = open(constants.VISUALIZATIONS_DIR_PATH + "visualisation_graph_file.txt", "w")
+		# task1_output_file = open(constants.TASK1_OUTPUT_FILE, "w")
 		top_k = sorted(graph_list, key=lambda x:(-x[2], x[1], x[0]))[0:k]
 		for iter in top_k:
 			reduced_graph_file.write(str(iter[0]) + " " + str(iter[1]) + " " + str(iter[2]) + "\n")
+		
+		visualise_len = 10 * int(k)
+
+		for iter in range(visualise_len):
+			visualise_graph_file.write(reduced_graph_file.readline())
+
+		# for iter in top_k[::k]:
+		# 	task1_output_file.write(str(iter[0]) + "\n")
+		# 	for iter in top_k:
+		# 		task1_output_file.write(str(iter[1]) + "\n")
+		# 	task1_output_file.write("####" + "\n")
+
+		visualise_graph_file.write(str(temp))
+		visualise_graph_file.close()
 		reduced_graph_file.close()
+		task1_output_file.close()
 
 	def create_graph(self):
-		g = nx.read_edgelist(constants.VISUALIZATIONS_DIR_PATH + "graph_file.txt", nodetype=int, \
+		g = nx.read_edgelist(constants.VISUALIZATIONS_DIR_PATH + "visualisation_graph_file.txt", nodetype=int, \
 							data=(('weight',float),), create_using=nx.DiGraph())
 		print("graph created")
+		nx.draw(g, with_labels=True)
+		plt.show()
 		return g
+
 
 	def runner(self):
 		"""
@@ -65,5 +85,6 @@ class Task1():
 			image_feature_map = self.data_extractor.prepare_dataset_for_task1(self.mapping)
 			image_list = list(image_feature_map.keys())
 			self.generate_imgximg_edgelist(image_list, image_list, image_feature_map, k)
+			self.create_graph()
 		except Exception as e:
 			print(constants.GENERIC_EXCEPTION_MESSAGE + "," + str(type(e)) + "::" + str(e.args))
