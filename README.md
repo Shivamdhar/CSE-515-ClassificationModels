@@ -26,4 +26,4 @@ and query results are evaluated for an input consisting of a combination of visu
 algorithms for the set of images and labels provided.
 
 
-![Image of search engine](images/phase3.png)
+![Image of search engine](output/images/phase3.png)
