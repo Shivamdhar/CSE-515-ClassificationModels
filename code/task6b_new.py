@@ -11,6 +11,9 @@ class Task6b():
 		self.ut = Util()
 		self.ppr = Task4()
 		self.d = 0.85
+		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+		self.image_id_mapping = pickle.load(image_id_mapping_file)[1]
+
 
 	def get_normalized_seed_vector(self,seed_vector,graph_len):
 		"""
@@ -83,10 +86,24 @@ class Task6b():
 
 		return classified_image_label_map
 
+	def pretty_print(self,label_image_map):
+		op = open(constants.TASK6b_OUTPUT_FILE, "w")
+		count = 0
+
+		for label, image_ids in label_image_map.items():
+			count += 1
+			print("Label " + str(count) + "\n ########################## \n")
+			op.write("Label " + label + "\n")
+
+			id_image_mapping = { y:x for x,y in self.image_id_mapping.items() }
+
+			ids = [id_image_mapping[image_id] for image_id in image_ids]
+			for temp in ids:
+				op.write(temp + "\n")
+			op.write("####\n")
+
 	def runner(self):
 		#try:
-		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
-		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 		image_label_map = OrderedDict({})
 
 		f = open("PPR_input1.txt")
@@ -94,7 +111,7 @@ class Task6b():
 
 		for row in file_content:
 			row_entry = row.split(" ")
-			image_id = image_id_mapping[row_entry[0]] #check on iint
+			image_id = self.image_id_mapping[row_entry[0]] #check on iint
 			label = row_entry[1].replace("\n","") if row_entry[1] else row_entry[-1].replace("\n","")
 			image_label_map[image_id] = label
 
@@ -121,11 +138,12 @@ class Task6b():
 				else:
 					label_image_map[i] = [k]
 
+		# print(singular_image_count)
+		# print(singular_images)
 
-		print(singular_image_count)
-		print(singular_images)
+		# print(label_image_map)
 
-		print(label_image_map)
+		self.pretty_print(label_image_map)
 
 		# except Exception as e:
 		# 	print(constants.GENERIC_EXCEPTION_MESSAGE + "," + str(type(e)) + "::" + str(e.args))
