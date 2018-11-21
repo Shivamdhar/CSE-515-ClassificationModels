@@ -2,15 +2,17 @@ from collections import OrderedDict
 import constants
 import numpy as np
 import pickle
+import re
 import scipy.sparse as sparse
 from task4 import Task4
 from util import Util
+
 
 class Task6b():
 	def __init__(self):
 		self.ut = Util()
 		self.ppr = Task4()
-		self.d = 0.85
+		self.ppr.d = 0.85
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		self.image_id_mapping = pickle.load(image_id_mapping_file)[1]
 
@@ -106,13 +108,14 @@ class Task6b():
 		#try:
 		image_label_map = OrderedDict({})
 
-		f = open("PPR_input1.txt")
+		f = open("PPR_input2.txt")
 		file_content = f.readlines()[2:]
 
 		for row in file_content:
 			row_entry = row.split(" ")
-			image_id = self.image_id_mapping[row_entry[0]] #check on iint
-			label = row_entry[1].replace("\n","") if row_entry[1] else row_entry[-1].replace("\n","")
+			row_entry = [item.strip() for item in row_entry if re.match('\\W?\\w+', item)]
+			image_id = self.image_id_mapping[row_entry[0]]
+			label = row_entry[1]
 			image_label_map[image_id] = label
 
 		initial_k = self.ut.validate_and_get_correct_k()
