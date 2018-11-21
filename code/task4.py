@@ -9,7 +9,7 @@ class Task4():
 		self.ut = Util()
 		self.d = 0.85
 
-	def personalised_pagerank(self, graph, K, seeds=[]):
+	def personalised_pagerank(self, graph, seeds=[]):
 		"""
 		Algorithm to compute PPR
 		1. Let vq=0, for all its N entries, except a ’1’ for the q-th entry.
@@ -22,7 +22,7 @@ class Task4():
 		uq = vq
 		M = self.normalize_M(graph)
 		uq = self.converge(uq, vq, M)
-		self.top_k(uq, K)
+		return uq
 
 	def initialize_vq(self, seeds, graph_len):
 		vq = [0]*graph_len
@@ -96,7 +96,8 @@ class Task4():
 			seeds.append(image_id_mapping[image_id3])
 
 			graph = self.ut.create_adj_mat_from_red_file(initial_k, True)
-			k_dominant_images = self.personalised_pagerank(graph, K, seeds)
+			personalized_pagerank_vector = self.personalised_pagerank(graph, seeds)
+			self.top_k(personalized_pagerank_vector, K)
 
 		except Exception as e:
 			print(constants.GENERIC_EXCEPTION_MESSAGE + "," + str(type(e)) + "::" + str(e.args))
