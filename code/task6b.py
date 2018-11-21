@@ -100,7 +100,7 @@ class Task6b():
 
 
 	def classifier(self):
-		
+		pass
 
 
 	def runner(self):

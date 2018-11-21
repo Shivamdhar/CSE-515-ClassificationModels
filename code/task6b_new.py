@@ -12,7 +12,7 @@ class Task6b():
 	def __init__(self):
 		self.ut = Util()
 		self.ppr = Task4()
-		self.ppr.d = 0.85
+		self.ppr.d = 0.95
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		self.image_id_mapping = pickle.load(image_id_mapping_file)[1]
 
@@ -81,6 +81,9 @@ class Task6b():
 
 		for i,v in enumerate(image_label_matrix):
 			label_indexes = np.argwhere(v == np.amax(v)).flatten().tolist()
+			if np.max(v) == 0:
+				#Assigning the first label where 0 has occured.
+				label_indexes = [label_indexes[0]]
 			computed_labels = self.get_labels_from_indexes(label_indexes,index_label_map)
 			classified_image_label_map[i] = computed_labels
 

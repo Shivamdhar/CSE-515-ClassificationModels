@@ -48,11 +48,10 @@ class Task4():
 		uq_list.append(uq)
 		converged = False
 		count = 0
-
 		while(count < 50):
 			count += 1
 			uq = self.compute_uq(uq_list[-1], vq, M)
-			
+			uq_list.append(uq)
 		return uq_list[-1]
 
 	def compute_uq(self, uq, vq, M):
