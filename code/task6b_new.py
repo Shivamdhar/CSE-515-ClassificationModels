@@ -80,12 +80,14 @@ class Task6b():
 		classified_image_label_map = {}
 
 		for i,v in enumerate(image_label_matrix):
-			label_indexes = np.argwhere(v == np.amax(v)).flatten().tolist()
-			if np.max(v) == 0:
+			max_score = np.amax(v)
+			label_indexes = np.argwhere(v == max_score).flatten().tolist()
+			if max_score == 0:
 				#Assigning the first label where 0 has occured.
 				label_indexes = [label_indexes[0]]
 			computed_labels = self.get_labels_from_indexes(label_indexes,index_label_map)
-			classified_image_label_map[i] = computed_labels
+
+			classified_image_label_map[i] = (computed_labels,max_score)
 
 		#classified_image_label_map = {image:reverse_label_index_map[image] for i,index in enumerate(image_label_indexes)}
 
@@ -95,14 +97,18 @@ class Task6b():
 		op = open(constants.TASK6b_OUTPUT_FILE, "w")
 		count = 0
 
-		for label, image_ids in label_image_map.items():
+		for label, image_scores in label_image_map.items():
 			count += 1
 			print("Label " + str(count) + "\n ########################## \n")
 			op.write("Label " + label + "\n")
 
+			image_scores = sorted(image_scores,key=lambda x:x[1],reverse=True)
+
+			sorted_image_ids = [im[0] for im in image_scores]
+
 			id_image_mapping = { y:x for x,y in self.image_id_mapping.items() }
 
-			ids = [id_image_mapping[image_id] for image_id in image_ids]
+			ids = [id_image_mapping[image_id] for image_id in sorted_image_ids]
 			for temp in ids:
 				op.write(temp + "\n")
 			op.write("####\n")
@@ -111,7 +117,7 @@ class Task6b():
 		#try:
 		image_label_map = OrderedDict({})
 
-		f = open("PPR_input2.txt")
+		f = open("PPR_input1.txt")
 		file_content = f.readlines()[2:]
 
 		for row in file_content:
@@ -131,18 +137,18 @@ class Task6b():
 		label_image_map = {}
 
 		for k,v in classified_image_label_map.items():
-			if len(v) == 1:
+			if len(v[0]) == 1:
 				singular_image_count+=1 
-				singular_images.append((k,v[0]))
+				singular_images.append((k,v[0][0]))
 
 		#print(classified_image_label_map)
 
 		for k,v in classified_image_label_map.items():
-			for i in v:
+			for i in v[0]:
 				if i in label_image_map:
-					label_image_map[i].append(k)
+					label_image_map[i].append((k,v[1]))
 				else:
-					label_image_map[i] = [k]
+					label_image_map[i] = [(k,v[1])]
 
 		# print(singular_image_count)
 		# print(singular_images)
