@@ -8,7 +8,7 @@ from task3 import Task3
 from task3_iterative import Task3_iterative
 from task4_nx import Task4_nx
 from task4 import Task4
-from task6b_new import Task6b
+from task6b import Task6b
 
 class Driver():
 
