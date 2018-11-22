@@ -1,127 +1,184 @@
-import numpy as np
-from numpy import linalg as LA
-from util import Util
-import networkx as nx
+from collections import OrderedDict
 import constants
-import pandas as pd
+import numpy as np
 import pickle
-from task3 import Task3
-from task3_iterative import Task3_iterative
+import re
+import scipy.sparse as sparse
+from task4 import Task4
+from util import Util
+
+
 class Task6b():
 	def __init__(self):
 		self.ut = Util()
+		self.ppr = Task4()
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		self.image_id_mapping = pickle.load(image_id_mapping_file)[1]
-		self.task3 = Task3()
-		self.task3_new = Task3_iterative()
 
-	def get_weighted_transition_matrix(self,graph):
+
+	def get_normalized_seed_vector(self,seed_vector,graph_len):
 		"""
-		Method : Returns the weighted transition matrix(column stochastic) with each column having sum as 1
-		and each individual value being reciprocal of degree of the node of the graph
-		Wij = 1/degree(vi)
+		Method : Returns the normalized seed vector such the norm of the vector is 1
+		seed_vector : Vector initialized with 1 for a labeled image
+		graph_len : Length of the graph
 		"""
-		out_degree_list = self.task3_new.calculate_node_outdegree(graph)
-		pointing_nodes_list = self.task3_new.derive_pointing_nodes_list(graph.T)
-		#degree_vi = len(out_degree_list) + len(pointing_nodes_list)
-		n = len(graph)
-		W = np.array([[0] * n] * n)
+		seed_vector = self.ppr.initialize_vq(seed_vector,graph_len)
 
-		#TODO VEctorize this , think about j can't do like this
-		for i in range(0,n):
-			#for j in range(0,n):
-			W[i,:] = out_degree_list[i] + len(pointing_nodes_list[i])
+		#normalize seed_vector
+		seed_vector = [i/np.linalg.norm(seed_vector) for i in seed_vector]
 
-		#compute W matrix using degree	
-		#W = self.task3.compute_M(graph)
-		return np.array(W)
-		pass
+		return np.array(seed_vector)
 
-
-	def get_normalized_teleportation_vector(self,u_vector,xl,yl,image_label_map,label):
-
-		image_ids = [k for k,v in image_label_map.items() if v == label]
-
-		image_indexes = [self.image_id_mapping[i] for i in image_ids]
-		#image_indexes.sort()
-
-		# Set ui(transportation vector) -> 1 such that yl for i = c
-		np.put(u_vector,image_indexes,([1]*len(image_indexes)))
-
-		#assert u_vector.non_zero()[0].tolist() == image_indexes
-
-		#normalize u
-		u_vector = [i/np.linalg.norm(u_vector) for i in u_vector]
-
-		return np.array(u_vector)
-
-	def get_ranking_vector(self,graph,u):
+	def ppr_classifier(self, graph, image_label_map):
 		"""
-		Get the ranking vector
-		Computed using the expression - (1-d)*(I - dW)^-1*u
+		Algorithm to classify images based on PPR
+		1. Fetch seeds to compute personalized pagerank for each label
+		2. Find pagerank vector for each label
+		3. Argmax for finding label for the unclassified instace
 		"""
-		W = self.get_weighted_transition_matrix(graph)
-		d = 0.85
+		seed_label_map = self.fetch_seeds(image_label_map)
+		label_ppr_map = {}
+		graph_len = len(graph)
+		M = self.ppr.normalize_M(graph)
+		for label, seed_list in seed_label_map.items():
+			seed_vector = self.get_normalized_seed_vector(seed_list,graph_len)
+			rank_vector = seed_vector
+			rank_vector = self.ppr.converge(rank_vector, seed_vector, M)
+			label_ppr_map[label] = np.array(rank_vector)
+		classified_image_label_map = self.classify(label_ppr_map)
+		return classified_image_label_map
 
-		n = len(graph)
-
-		left_operand = (1-d) * u
-		ri = (np.linalg.inv(np.eye(n) - d*W) @ u)
-		right_operand = (d*W) @ ri
-
-		rvector_expression = left_operand + right_operand
-
-		w, v = sparse.linalg.eigs(rvector_expression)
-		return 
-
-	def execute_multirank_walk(self,G,xl_yl_map):
+	def fetch_seeds(self,image_label_map):
 		"""
-		Method: Returns Labels Yu for unlabeled nodes Xu
-
-		Algorithm for multirank walk follows
-		A) For each class c
-			1) Set ui(teleportation_vector) -> 1 such that yl for i = c
-			2) ||u|| = 1(Normalize u)
-			3) Rc -> RandomWalk(G,u,d)
-		B) For each instance
-			Set Xiu -> argmax(Rci)
+		Method : Returns the map (image-> <list of labels associated with the image>)
+		image_label_map : Map of (image -> label)
 		"""
-		#creates a list of V zeros
+		seed_list_map = {}
+		for key, value in image_label_map.items():
+			if value in seed_list_map.keys():
+				seed_list_map[value].append(key)
+			else:
+				seed_list_map[value] = [key]
+		return seed_list_map
 
-		yl = list(set(list(image_label_map.values())))
-		xl = list(image_label_map.keys())
+	def get_label_index_map(self,labels):
+		"""
+		Method: Returns the map of (label_value -> label_iterator) given
+		the list of labels
+		"""
+		label_index_map = {label:i for i,label in enumerate(labels)}
+		return label_index_map
 
-		u_vector = np.array([0]* len(G))
+	def get_labels_from_indexes(self,label_indexes,index_label_map):
+		"""
+		Method : Returns the list of labels given the label indexes from the index label map
+		"""
+		label_list = []
 
-		for label in yl:
-			u_vector_normalized = self.get_normalized_teleportation_vector(u_vector,xl,yl,
-				image_label_map,label)
-			rc = self.get_ranking_vector(graph)
+		for iter in label_indexes:
+			label_list.append(index_label_map[iter])
+
+		return label_list
 
 
-	def classifier(self):
-		pass
+	def classify(self, label_ppr_map):
+		"""
+		Method: Returns the map of classified images (image-> label) given
+		the map of( label-> personalized page rank vector)
+		label_ppr_map : Map of (label -> personalized page rank vector)
+		"""
+		label_list = label_ppr_map.keys()
+		pagerank_vectors = label_ppr_map.values()
 
+		#stacking the page rank vectors vertically
+		pagerank_matrix = np.vstack(pagerank_vectors)
+		label_index_map = self.get_label_index_map(label_list)
+		index_label_map = dict((v,k) for k,v in label_index_map.items())
+
+		image_label_matrix = pagerank_matrix.T
+		classified_image_label_map = {}
+
+		for i,v in enumerate(image_label_matrix):
+			max_score = np.amax(v)
+
+			#Gets the indexes(for labels) where the score is maximum, accounts for multiple max score
+			label_indexes = np.argwhere(v == max_score).flatten().tolist()
+			if max_score == 0:
+				#Assigning the first label where 0 has occured.
+				label_indexes = [label_indexes[0]]
+
+			#Gets the labels for the obtained indexes
+			computed_labels = self.get_labels_from_indexes(label_indexes,index_label_map)
+
+			classified_image_label_map[i] = (computed_labels,max_score)
+
+		#classified_image_label_map = {image:reverse_label_index_map[image] for i,index in enumerate(image_label_indexes)}
+
+		return classified_image_label_map
+
+	def pretty_print(self,label_image_map):
+		op = open(constants.TASK6b_OUTPUT_FILE, "w")
+		count = 0
+
+		for label, image_scores in label_image_map.items():
+			count += 1
+			print("Label " + str(count) + "\n ########################## \n")
+			op.write("Label " + label + "\n")
+
+			image_scores = sorted(image_scores,key=lambda x:x[1],reverse=True)
+
+			sorted_image_ids = [im[0] for im in image_scores]
+
+			id_image_mapping = { y:x for x,y in self.image_id_mapping.items() }
+
+			ids = [id_image_mapping[image_id] for image_id in sorted_image_ids]
+			for temp in ids:
+				op.write(temp + "\n")
+			op.write("####\n")
 
 	def runner(self):
-		seed_images = []
-		image_label_map = {}
+		try:
+			image_label_map = OrderedDict({})
 
-		f = open("PPR_input1.txt")
-		file_content = f.readlines()[2:]
+			f = open("PPR_input1.txt")
+			file_content = f.readlines()[2:]
 
-		for row in file_content:
-			row_entry = row.split(" ")
-			image_id = int(row_entry[0]) #check on iint
-			label = row_entry[1].replace("\n","") if row_entry[1] else row_entry[-1].replace("\n","")
-			image_label_map[image_id] = label
+			for row in file_content:
+				row_entry = row.split(" ")
+				row_entry = [item.strip() for item in row_entry if re.match('\\W?\\w+', item)]
+				image_id = self.image_id_mapping[row_entry[0]]
+				label = row_entry[1]
+				image_label_map[image_id] = label
 
-		# Getting the k value for which reduced file was generated
-		initial_k = self.ut.validate_and_get_correct_k()
+			initial_k = self.ut.validate_and_get_correct_k()
+			graph = self.ut.create_adj_mat_from_red_file(initial_k, True)
+			classified_image_label_map = self.ppr_classifier(graph, image_label_map)
 
-		graph = self.ut.create_adj_mat_from_red_file(initial_k)
+			# singular_image_count = 0
+			# singular_images = []
 
-		graph = np.array(graph)
+			label_image_map = {}
 
-		#should return the map of all the the images with atleast one label
-		self.execute_multirank_walk(graph,xl,yl,image_label_map)
+			# for k,v in classified_image_label_map.items():
+			# 	if len(v[0]) == 1:
+			# 		singular_image_count+=1 
+			# 		singular_images.append((k,v[0][0]))
+
+			#print(classified_image_label_map)
+
+			for k,v in classified_image_label_map.items():
+				for i in v[0]:
+					if i in label_image_map:
+						label_image_map[i].append((k,v[1]))
+					else:
+						label_image_map[i] = [(k,v[1])]
+
+			# print(singular_image_count)
+			# print(singular_images)
+
+			# print(label_image_map)
+
+			self.pretty_print(label_image_map)
+
+		except Exception as e:
+			print(constants.GENERIC_EXCEPTION_MESSAGE + "," + str(type(e)) + "::" + str(e.args))
