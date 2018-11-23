@@ -60,3 +60,16 @@ class Util():
 		"""
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		return pickle.load(image_id_mapping_file)[1]
+
+	def validate_and_get_correct_k(self):
+		"""
+		Returns the right value of k for which the reduced graph was created
+		"""
+		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+		image_id_mapping = pickle.load(image_id_mapping_file)[1]
+
+		graph_file = open(constants.GRAPH_FILE, "r")
+		edges = graph_file.readlines()
+		size_of_graph = len(image_id_mapping)
+		initial_k = len(edges) // size_of_graph
+		return initial_k

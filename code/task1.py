@@ -14,6 +14,7 @@ class Task1():
 	def __init__(self):
 		self.ut = Util()
 		self.data_extractor = DataExtractor()
+		self.mapping = self.data_extractor.location_mapping()
 
 	def generate_imgximg_edgelist(self, image_list1, image_list2, image_feature_map, k):
 		""" Method: generate_imgximg_edgelist returns image to image similarity in form of an edge list """
