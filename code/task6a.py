@@ -22,7 +22,6 @@ class Task6a():
 		loc_mapping = data_extractor.location_mapping()
 		self.img_feature_matrix = data_extractor.prepare_dataset_for_task1(loc_mapping)
 		self.img_ids = list(self.img_feature_matrix.keys())
-		print(len(self.img_ids))
 		# for id1 in self.img_ids:
 		# 	img_matrix = []
 		# 	for id2 in self.img_ids:
@@ -44,7 +43,7 @@ class Task6a():
 
 	def read_input_labels_pairs(self):
 		""" Method: read input image-label pairs"""
-		input_image_label_pairs_df = pd.read_csv('../input/task_6a1.txt')
+		input_image_label_pairs_df = pd.read_csv('../input/task_6a.txt')
 		input_images = list(input_image_label_pairs_df['image'])
 		input_labels = list(input_image_label_pairs_df['label'])
 		self.input_image_label_pairs = OrderedDict(zip(input_images, input_labels))
@@ -53,33 +52,34 @@ class Task6a():
 				self.label_img_matrix[input_labels[i]].append(input_images[i])
 			else:
 				self.label_img_matrix[input_labels[i]] = [input_images[i]]
+		print('initial fianl matrix ', self.label_img_matrix)
 
 	def classify_images(self):
 		""" Method: Classify all images based on given image-label pairs"""
 		labelled_image_ids = list(self.input_image_label_pairs.keys())
-		# print(labelled_image_ids)
 		input_image_labels = list(self.input_image_label_pairs.values())
-		# print(input_image_labels)
 		for image in self.img_ids:
-			# similarity_matrix = []
-			# print(image)
 			label_similarity_dict = dict()
 			for i, labelled_image in enumerate(labelled_image_ids):
-				# print(i, labelled_image)
-				print(input_image_labels[i])
 				if input_image_labels[i] in label_similarity_dict:
-					label_similarity_dict[input_image_labels[i]] += self.get_euclidean_similarity(self.img_feature_matrix[image], self.img_feature_matrix[labelled_image])
+					label_similarity_dict[input_image_labels[i]] += self.get_euclidean_similarity(self.img_feature_matrix[image], self.img_feature_matrix[str(labelled_image)])
 				else:
-					label_similarity_dict[input_image_labels[i]] = self.get_euclidean_similarity(self.img_feature_matrix[image], self.img_feature_matrix[labelled_image])
+					label_similarity_dict[input_image_labels[i]] = self.get_euclidean_similarity(self.img_feature_matrix[image], self.img_feature_matrix[str(labelled_image)])
 			for label in label_similarity_dict:
-				sim_values = label_similarity_dict[label]
-				label_similarity_dict[label] = sum(sim_values)/float(len(sim_values))
+				label_similarity_dict[label] = label_similarity_dict[label]/input_image_labels.count(label)
 			min_sim = min(label_similarity_dict.values())
-			for label, sim in label_similarity_dict:
+			for label, sim in label_similarity_dict.items():
 				if sim == min_sim:
-					self.label_img_matrix[label] = self.label_img_matrix[label].append(image)
-		print(self.label_img_matrix)
+					self.label_img_matrix[label].append(image)
 
+	def pretty_print(self):
+		op = open(constants.TASK6a_OUTPUT_FILE, "w")
+
+		for label, image_ids in self.label_img_matrix.items():
+			op.write("Label " + label + "\n")
+			for temp in image_ids:
+				op.write(str(temp) + "\n")
+			op.write("####\n")
 
 			# # similarity_image_dict = Dict(zip(similarity_matrix, input_image_labels))
 			# image_similarity_dict = Dict(zip(input_image_labels, similarity_matrix))
@@ -101,8 +101,13 @@ class Task6a():
 if __name__ == "__main__":
 	task = Task6a()
 	task.generate_img_img_adj_matrix()
+	if '40222616' in task.img_feature_matrix:
+		print('found')
+	else:
+		print('not found')
 	# task.get_img_img_adj_matrix()
 
 	# test this code..
 	task.read_input_labels_pairs()
 	task.classify_images()
+	task.pretty_print()
