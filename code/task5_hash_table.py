@@ -1,7 +1,7 @@
 import numpy as np
 
 class Task5HashTable:
-	def __init__(self, k_hash_size, feature_count, w_parameter = 0.10):
+	def __init__(self, k_hash_size, feature_count, w_parameter = 0.078):
 		"""
 		Method Explanation:
 			. Initializes properties for the current instance.
@@ -44,19 +44,19 @@ class Task5HashTable:
 		"""
 		Method Explanation:
 			. Generate a hash value based on the euclidean hash family formula.
-			. Each hash function generates a hash value of 8 bits long.
-			. For k hash functions, we get a hash code of 8*k bits.
+			. Each hash function generates a hash value of 12 bits long.
+			. For k hash functions, we get a hash code of 12*k bits.
 			. Used for filling the hash tables, querying them and also for nearest neighbor search.
 		Input(s):
 			input_vector -- The image represented as a vector.
 		Output:
 			The bit representation of the hash code that is generated cast to an integer representation comprising of 0s and 1s.
 		"""
-		hash_code = ''
+		hash_code = ""
 		for index, row_data in enumerate(self.projections):
 			random_vector_transpose = row_data.transpose()
-			current_hash = np.floor((np.dot(input_vector, random_vector_transpose) + self.b_offsets[index])/self.w_parameter).astype('int')
-			bit_representation = np.binary_repr(current_hash, 8) # "{:08b}".format(current_hash & 0xffffffff)
+			current_hash = np.floor((np.dot(input_vector, random_vector_transpose) + self.b_offsets[index])/self.w_parameter).astype("int")
+			bit_representation = np.binary_repr(current_hash, 12)
 			hash_code+= bit_representation
 		return hash_code
 
@@ -83,16 +83,16 @@ class Task5HashTable:
 		Method Explanation:
 			. Assists in nearest neighbor search.
 			. Used by LSH class' get_t_candidates method.
-			. Gives a reduced representation of the hash with 8, 16, 24... bits subtracted from the end depending on the k_value
+			. Gives a reduced representation of the hash with 12, 24, 36... bits subtracted from the end depending on the k_value
 		Input(s):
-			current_hash_code -- the current hash_code of size 8*self.k_hash_size
+			current_hash_code -- the current hash_code of size 12*self.k_hash_size
 			k_value -- a value lesser than self.k_hash_size
 		Output:
 			A reduced representation of the current_hash_code.
 		"""
 		if (k_value == self.k_hash_size) or (k_value == 0) or (self.k_hash_size - k_value < 0):
 			return current_hash_code
-		return current_hash_code[:(len(current_hash_code)-8*(self.k_hash_size - k_value))]
+		return current_hash_code[:(len(current_hash_code)-12*(self.k_hash_size - k_value))]
 	
 	def get_item_for_reduced_k(self, input_vector, k_value):
 		"""
@@ -108,7 +108,7 @@ class Task5HashTable:
 		"""
 		result_list = list()
 		hash_code_key = self.generate_hash(input_vector)
-		reduced_hash_code_key = self.get_reduced_hash_code(hash_code_key, k_value) # hash_code_key[:(len(hash_code_key)-8*(self.k_hash_size - k_value))]
+		reduced_hash_code_key = self.get_reduced_hash_code(hash_code_key, k_value)
 		
 		for hash_code, imageid_list in self.hash_table.items():
 			reduced_hash_code = self.get_reduced_hash_code(hash_code, k_value)

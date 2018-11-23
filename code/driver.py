@@ -8,17 +8,19 @@ from task3 import Task3
 from task3_iterative import Task3_iterative
 from task4_nx import Task4_nx
 from task4 import Task4
+from task5_driver import Task5Driver
 from task6b import Task6b
 
 class Driver():
 
 	def input_task_num(self):
-		task_num = input("Enter the Task no.: 1, 2a(Angular), 2b(Max-a-min), 3(PageRank), 4(PPR), 5a, 5b, 6a, 6b\t")
+		print("Tasks: 1, 2a(Angular), 2b(Max-a-min), 3(PageRank), 4(PPR), 5(LSH), 6a, 6b")
+		task_num = input("Enter the Task no.: ")
 		self.select_task(task_num)
 
 	def select_task(self, task_num):
 		# Plugin class names for each task here
-		tasks = { "1": Task1(), "2a": Task2a(),  "2b": Task2b(), "3": Task3_iterative(), "4": Task4(),"6b":Task6b()}
+		tasks = { "1": Task1(), "2a": Task2a(),  "2b": Task2b(), "3": Task3_iterative(), "4": Task4(), "5": Task5Driver(),"6b":Task6b()}
 		# Have a runner method in all the task classes
 		tasks.get(task_num).runner()
 

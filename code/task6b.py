@@ -112,8 +112,6 @@ class Task6b():
 
 			classified_image_label_map[i] = (computed_labels,max_score)
 
-		#classified_image_label_map = {image:reverse_label_index_map[image] for i,index in enumerate(image_label_indexes)}
-
 		return classified_image_label_map
 
 	def pretty_print(self,label_image_map):
@@ -154,17 +152,7 @@ class Task6b():
 			graph = self.ut.create_adj_mat_from_red_file(initial_k, True)
 			classified_image_label_map = self.ppr_classifier(graph, image_label_map)
 
-			# singular_image_count = 0
-			# singular_images = []
-
 			label_image_map = {}
-
-			# for k,v in classified_image_label_map.items():
-			# 	if len(v[0]) == 1:
-			# 		singular_image_count+=1 
-			# 		singular_images.append((k,v[0][0]))
-
-			#print(classified_image_label_map)
 
 			for k,v in classified_image_label_map.items():
 				for i in v[0]:
@@ -172,11 +160,6 @@ class Task6b():
 						label_image_map[i].append((k,v[1]))
 					else:
 						label_image_map[i] = [(k,v[1])]
-
-			# print(singular_image_count)
-			# print(singular_images)
-
-			# print(label_image_map)
 
 			self.pretty_print(label_image_map)
 
