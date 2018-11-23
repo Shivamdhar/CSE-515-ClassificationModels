@@ -138,7 +138,7 @@ class Task6b():
 		try:
 			image_label_map = OrderedDict({})
 
-			f = open("PPR_input1.txt")
+			f = open(constants.TASK6_INPUT_FILE1,"r")
 			file_content = f.readlines()[2:]
 
 			for row in file_content:
