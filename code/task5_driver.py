@@ -6,13 +6,17 @@ from urllib.request import pathname2url
 
 class Task5Driver:
 	def __init__(self):
-		self.L = int(input('Enter the number of layers (L): '))
-		self.k = int(input('Enter the number of Hashes per layer (k): '))
-		self.lsh = Task5LSH(self.k, self.L)
+		self.L = int()
+		self.k = int()
+		self.lsh = None
 		self.query_imageid = ''
 		self.t = int()
 
 	def runner(self):
+		self.L = int(input('Enter the number of layers (L): '))
+		self.k = int(input('Enter the number of Hashes per layer (k): '))
+		self.lsh = Task5LSH(self.k, self.L)
+
 		for table_instance in self.lsh.hash_tables:
 			print('Number of hash codes/buckets for the given layer: ', len(list(table_instance.hash_table.keys()))) #, ' Max size of any given bucket: ', max(list(table_instance.hash_table.values())))
 			print('------------')

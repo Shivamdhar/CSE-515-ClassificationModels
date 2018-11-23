@@ -20,7 +20,7 @@ class Driver():
 
 	def select_task(self, task_num):
 		# Plugin class names for each task here
-		tasks = { "1": Task1(), "2a": Task2a(),  "2b": Task2b(), "3": Task3_iterative(), "4": Task4(), "5": Task5Driver(),"6b":Task6b()}
+		tasks = { "1": Task1(), "2a": Task2a(),  "2b": Task2b(), "3": Task3_iterative(), "4": Task4(), "5": Task5Driver(), "6b":Task6b()}
 		# Have a runner method in all the task classes
 		tasks.get(task_num).runner()
 
