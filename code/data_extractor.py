@@ -37,3 +37,27 @@ class DataExtractor(object):
 				image_feature_map[image_id] = feature_values
 
 		return image_feature_map
+
+	def prepare_dataset_for_task6(self, mapping):
+		"""
+		Method: Combining all the images across locations.
+		"""
+		locations = list(mapping.values())
+		image_feature_map = OrderedDict({})
+		models = constants.MODELS
+
+		for location in locations:
+			for model in models:
+				location_model_file = location + " " + model + ".csv"
+				data = open(constants.PROCESSED_VISUAL_DESCRIPTORS_DIR_PATH + location_model_file, "r").readlines()
+
+				for row in data:
+					row_data = row.strip().split(",")
+					feature_values = list(map(float, row_data[1:]))
+					image_id = row_data[0]
+					if image_id in image_feature_map:
+						image_feature_map[str(image_id)].extend(feature_values)
+					else:
+						image_feature_map[str(image_id)] = feature_values
+
+		return image_feature_map
