@@ -87,7 +87,7 @@ class Task3():
 		op = open(constants.TASK3_OUTPUT_FILE, "w")
 		op.write("K most dominant images are:\n")
 		for image_id, score in sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K]:
-			op.write(str(image_id))
+			op.write(str(image_id) + " " + str(score))
 			op.write("\n")
 
 		print(sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K])
