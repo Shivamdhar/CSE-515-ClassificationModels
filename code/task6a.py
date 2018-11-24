@@ -40,6 +40,7 @@ class Task6a():
 	def read_input_labels_pairs(self):
 		""" Method: read input image-label pairs"""
 		input_image_label_pairs_df = pd.read_csv('../input/task_6a.txt')
+		print('reading input labels')
 		input_images = list(input_image_label_pairs_df['image'])
 		input_labels = list(input_image_label_pairs_df['label'])
 		self.input_image_label_pairs = OrderedDict(zip(input_images, input_labels))
@@ -51,6 +52,7 @@ class Task6a():
 
 	def classify_images(self, k):
 		""" Method: Classify all images based on given image-label pairs"""
+		print("Classifying images..")
 		labelled_image_ids = list(self.input_image_label_pairs.keys())
 		input_image_labels = list(self.input_image_label_pairs.values())
 		for image in self.img_ids:
@@ -69,6 +71,7 @@ class Task6a():
 
 	def pretty_print(self):
 		""" Method: Print all image label pairs onto html file for visualization"""
+		print("Printing Images.")
 		op = open(constants.TASK6a_OUTPUT_FILE, "w")
 		image_ids_seen = []
 		for label, image_ids in self.label_img_matrix.items():
@@ -80,10 +83,15 @@ class Task6a():
 					image_ids_seen.append(temp[0])
 			op.write("####\n")
 		
-if __name__ == "__main__":
-	task = Task6a()
-	k = input('Enter value of k:')
-	task.generate_img_img_adj_matrix()
-	task.read_input_labels_pairs()
-	task.classify_images(k)
-	task.pretty_print()
+	def runner(self):
+		"""
+		Method: runner implemented for all the tasks, takes user input, and prints desired results.
+		"""
+		try:
+			k = input('Enter value of k:')
+			self.generate_img_img_adj_matrix()
+			self.read_input_labels_pairs()
+			self.classify_images(k)
+			self.pretty_print()
+		except Exception as e:
+			print(constants.GENERIC_EXCEPTION_MESSAGE + "," + str(type(e)) + "::" + str(e.args))
