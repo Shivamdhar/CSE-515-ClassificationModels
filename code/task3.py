@@ -5,87 +5,73 @@ import scipy.sparse as sparse
 from util import Util
 
 class Task3():
-	def __init__(self, personalised = False):
+	def __init__(self):
 		self.ut = Util()
-		self.beta = 0.85
-		self.transportation_probability = 1/3.0
-		self.personalised = personalised
+		self.d = 0.85
 
-	def pagerank(self, graph, K, image_ids):
+	def pagerank(self, graph, K, seeds=[]):
 		"""
-		1. compute transition matrix denoting random walks -
-		T =  βM(nxn) + (1−β).[1/N](n×n)
-		M[i,j] = {
-					1/out(pi) ; if there is an edge between pi and pj
-					1/N ; if out(pi) = 0
-					0 ; if |out(pi)| not equal to 0 but there is no edge from pi to pj
-				}
-
-		2. pagerank of each page p is defined as percentage of time random surfer spends on visiting p ->
-			components of first eigen vector of T
+		Pagerank is computed using iterative approach.
+		Initialize a pagerank vector with uniformly distributed probabilities to ensure each node gets a chance of being
+		randomly visited.
+		Compute pagerank score for each node which is defined in terms of all the nodes pointing to the current node.
+		If node A is pointed by node B and node C, then pagerank create_adj_mat_from_red_filer
+		node A = (1 - d) + d * ( (pagerank(B)/outdegree(B)) + (pagerank(C)/out_degree_listtdegree(C)) ).
+		Here d is damping factor with value 0.85.
+		Continue this over for a number of times, default set to 50 or until two consecutive iterations yield same
+		results.
 		"""
-		transition_matrix = self.compute_transition_matrix(graph, image_ids)
-		pagerank_score = self.get_time_spent_by_random_surfer_on_a_page(transition_matrix)
-		self.top_k(pagerank_score, K)
+		pagerank_vector = self.initialize_pagerank_vector(graph, seeds)
+		graph_transpose = np.array(graph).transpose()
+		out_degree_list = self.calculate_node_outdegree(graph)
+		pointing_nodes_list = self.derive_pointing_nodes_list(graph_transpose)
 
-	def compute_transition_matrix(self, graph, image_ids):
-		left_operand = self.compute_left_operand(graph)
-		right_operand = self.compute_right_operand(graph, image_ids)
-		return np.add(left_operand, right_operand)
+		final_pagerank_vector = self.converge(pagerank_vector, out_degree_list, pointing_nodes_list)
+		self.top_k(final_pagerank_vector, K)
 
-	def compute_left_operand(self, graph):
-		return np.multiply(self.beta, self.compute_M(graph))
-
-	def compute_right_operand(self, graph, image_ids):
-		if len(image_ids) != 0:
-			return self.personalised_page_rank_right_operand(graph, image_ids)
-
-		n = len(graph)
-		return np.multiply((1 - self.beta), [[1/n] * n] * n)
-
-	def personalised_page_rank_right_operand(self, graph, image_ids):
-		n = len(graph)
-		transport_matrix = [[0] * n] * n
-		for iter in transport_matrix:
-			if iter in image_ids:
-				transport_matrix[iter] = [self.transportation_probability] * len(transport_matrix[iter])
-
-		transposed_transport_matrix = [*zip(*transport_matrix)]
-
-		for iter in transposed_transport_matrix:
-			if iter in image_ids:
-				transposed_transport_matrix[iter] = [self.transportation_probability] * len(transposed_transport_matrix[iter])
-
-		transport_matrix = [*zip(*transposed_transport_matrix)]
-
-		return np.multiply((1 - self.beta), transport_matrix)
-
-	def compute_M(self, graph):
-		n = len(graph)
-		M = [[0] * n] * n
-		for i in range(0, n):
-			for j in range(0, n):
-				out_degree_pi = len(graph[i])
-				if out_degree_pi == 0:
-					M[i][j] = 1/n
-					continue
-				try:
-					edge_weight_pi_pj = graph[i][(i,j)]
-					if edge_weight_pi_pj:
-						M[i][j] = 1/out_degree_pi
-				except:
-					if out_degree_pi != 0:
-						M[i][j] = 0
-						continue
-		return M
-
-	def get_time_spent_by_random_surfer_on_a_page(self, transition_matrix):
+	def initialize_pagerank_vector(self, graph, seeds):
 		"""
-		returns first eigen vector of the decomposed matrix
+		Initialize pagerank_vector with uniform probability distribution.
 		"""
-		# w, v = LA.eig(transition_matrix) # w: eigen values, v: row matrix
-		w, v = sparse.linalg.eigs(transition_matrix)
-		return v[0]
+		return [1.0]*len(graph)
+
+	def calculate_node_outdegree(self, graph):
+		return [sum(row) for row in graph]
+
+	def derive_pointing_nodes_list(self, graph):
+		"""
+		returns incoming nodes for a given node in the graph.
+		"""
+		pointing_nodes_list = []
+		for row in graph:
+			local_pointing_nodes_list = []
+			for iter in range(len(row)):
+				if row[iter] == 1:
+					local_pointing_nodes_list.append(iter)
+			pointing_nodes_list.append(local_pointing_nodes_list)
+		return pointing_nodes_list
+
+	def converge(self, pagerank_vector, out_degree_list, pointing_nodes_list, default_iterations=50):
+		"""
+		We have kept converging factor as default iterations of 50.
+		"""
+		iterations = 0
+		pg_vectors = [pagerank_vector]
+		while(iterations < default_iterations):
+			pg_vector = [0]*len(pg_vectors[-1])
+			for node in range(len(pg_vectors[0])):
+				nodes_with_incoming_edges = pointing_nodes_list[node]
+				right_operand = self.random_walk(nodes_with_incoming_edges, out_degree_list, pg_vectors[-1])
+				pg_vector[node] = (1-self.d) + np.multiply(self.d, right_operand)
+			pg_vectors.append(pg_vector)
+			iterations += 1
+		return pg_vectors[-1]
+
+	def random_walk(self, nodes_with_incoming_edges, out_degree_list, pg_vector):
+		sum_random_nodes = 0
+		for node in nodes_with_incoming_edges:
+			sum_random_nodes += (pg_vector[node] * 1.0)/out_degree_list[node]
+		return sum_random_nodes
 
 	def top_k(self, pagerank_score, K):
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
@@ -96,44 +82,26 @@ class Task3():
 		for iter in range(0, len(pagerank_score)):
 			for image_id, index in image_id_mapping.items():
 				if index == iter:
-					image_id_score_mapping[image_id] = abs(pagerank_score[iter])
+					image_id_score_mapping[image_id] = pagerank_score[iter]
 		print("Top K images based on pagerank score\n")
-		top_k_images = sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K]
-		print(top_k_images)
-		if(self.personalised == False):
-			op = open(constants.TASK3_OUTPUT_FILE, "w")
-			op.write("K most dominant images are:\n")
-			for image in top_k_images:
-				op.write(list(image)[0])
-				op.write("\n")
-		else:
-			op = open(constants.TASK4_OUTPUT_FILE, "w")
-			op.write("K most dominant images are:\n")
-			for image in top_k_images:
-				op.write(list(image)[0])
-				op.write("\n")
+		op = open(constants.TASK3_OUTPUT_FILE, "w")
+		op.write("K most dominant images are:\n")
+		for image_id, score in sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K]:
+			op.write(str(image_id))
+			op.write("\n")
 
+		print(sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K])
 
 	def runner(self):
 		try:
 			image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 			image_id_mapping = pickle.load(image_id_mapping_file)[1]
+			seeds = []
 			K = int(input("Enter the value of K: "))
-			image_ids = []
-			if self.personalised:
-				print("Enter three image ids to compute PPR:\n")
-				image_id1 = input("Image id1:")
-				image_ids.append(image_id_mapping[image_id1])
-				image_id2 = input("Image id2:")
-				image_ids.append(image_id_mapping[image_id2])
-				image_id3 = input("Image id3:")
-				image_ids.append(image_id_mapping[image_id3])
-			graph = self.ut.fetch_dict_graph()
-			"""
-			graph = [{(1,2): 0.8, (1,3): 0.7, ....},
-					{(2,1): 0.8, (2,3): 0.75, ...}]
-			"""
-			k_dominant_images = self.pagerank(graph, K, image_ids)
+			initial_k = int(input("Enter the initial value of k: "))
+
+			graph = self.ut.create_adj_mat_from_red_file(initial_k)
+			k_dominant_images = self.pagerank(graph, K, seeds)
 
 		except Exception as e:
 			print(constants.GENERIC_EXCEPTION_MESSAGE + "," + str(type(e)) + "::" + str(e.args))
