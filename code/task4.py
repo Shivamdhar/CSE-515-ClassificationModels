@@ -74,7 +74,7 @@ class Task4():
 		op = open(constants.TASK4_OUTPUT_FILE, "w")
 		op.write("K most dominant images are (First 3 images are the seeds):\n")
 		for image_id, score in sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K + 3]:
-			op.write(str(image_id) + " " + str(score))
+			op.write(str(image_id) + " " + str(round(score, 4)))
 			op.write("\n")
 
 		print(sorted(image_id_score_mapping.items(), key=lambda x: x[1], reverse=True)[:K + 3])
