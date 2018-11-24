@@ -12,9 +12,7 @@ class Task6b():
 	def __init__(self):
 		self.ut = Util()
 		self.ppr = Task4()
-		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
-		self.image_id_mapping = pickle.load(image_id_mapping_file)[1]
-
+		self.image_id_mapping = None
 
 	def get_normalized_seed_vector(self,seed_vector,graph_len):
 		"""
@@ -136,6 +134,8 @@ class Task6b():
 
 	def runner(self):
 		try:
+			image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
+			self.image_id_mapping = pickle.load(image_id_mapping_file)[1]
 			image_label_map = OrderedDict({})
 
 			f = open(constants.TASK6_INPUT_FILE1,"r")
