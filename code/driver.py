@@ -7,6 +7,7 @@ from task2b import Task2b
 from task3 import Task3
 from task4 import Task4
 from task5_driver import Task5Driver
+from task6a import Task6a
 from task6b import Task6b
 
 class Driver():
@@ -18,7 +19,7 @@ class Driver():
 
 	def select_task(self, task_num):
 		# Plugin class names for each task here
-		tasks = { "1": Task1(), "2a": Task2a(),  "2b": Task2b(), "3": Task3(), "4": Task4(), "5": Task5Driver(), "6b":Task6b()}
+		tasks = { "1": Task1(), "2a": Task2a(),  "2b": Task2b(), "3": Task3(), "4": Task4(), "5": Task5Driver(), "6a":Task6a(), "6b":Task6b()}
 		# Have a runner method in all the task classes
 		tasks.get(task_num).runner()
 
