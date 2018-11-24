@@ -33,7 +33,7 @@ class Util():
 		image_id_mapping_file = open(constants.DUMPED_OBJECTS_DIR_PATH + "image_id_mapping.pickle", "rb")
 		image_id_mapping = pickle.load(image_id_mapping_file)[1]
 
-		graph_file = open(constants.GRAPH_FILE, "r")
+		graph_file = open("../visualizations/reduced_graph_file_" + str(initial_k) + ".txt", "r")
 		edges = graph_file.readlines()
 
 		graph_file_len = len(edges)

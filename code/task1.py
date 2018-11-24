@@ -44,14 +44,14 @@ class Task1():
 		return self.ut.compute_euclidean_distance(np.array(features_image1), np.array(features_image2))
 
 	def top_k(self, graph_list, k):
-		reduced_graph_file = open(constants.VISUALIZATIONS_DIR_PATH + "reduced_graph_file.txt", "a+")
+		reduced_graph_file = open(constants.VISUALIZATIONS_DIR_PATH + "reduced_graph_file_" + str(k) + ".txt", "a+")
 
 		top_k = sorted(graph_list, key=lambda x:(-x[2], x[1], x[0]))[0:k]
 		for iter in top_k:
 			reduced_graph_file.write(str(iter[0]) + " " + str(iter[1]) + " " + str(iter[2]) + "\n")
 
 	def create_graph(self, k):
-		reduced_graph_file = open(constants.VISUALIZATIONS_DIR_PATH + "reduced_graph_file.txt", "r")
+		reduced_graph_file = open(constants.VISUALIZATIONS_DIR_PATH + "reduced_graph_file_" + str(k) + ".txt", "r")
 		visualise_graph_file = open(constants.VISUALIZATIONS_DIR_PATH + "visualisation_graph_file.txt", "w")
 		task1_output_file = open(constants.TASK1_OUTPUT_FILE, "w")
 

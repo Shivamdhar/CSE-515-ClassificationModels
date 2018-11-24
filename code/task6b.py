@@ -148,7 +148,7 @@ class Task6b():
 				label = row_entry[1]
 				image_label_map[image_id] = label
 
-			initial_k = self.ut.validate_and_get_correct_k()
+			initial_k = int(input("Enter the initial value of k: "))
 			graph = self.ut.create_adj_mat_from_red_file(initial_k, True)
 			classified_image_label_map = self.ppr_classifier(graph, image_label_map)
 
