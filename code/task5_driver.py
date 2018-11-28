@@ -15,7 +15,7 @@ class Task5Driver:
 	def runner(self):
 		self.L = int(input('Enter the number of layers (L): '))
 		self.k = int(input('Enter the number of Hashes per layer (k): '))
-		self.lsh = Task5LSH(self.k, self.L)
+		self.lsh = Task5LSH(self.L, self.k)
 
 		for table_instance in self.lsh.hash_tables:
 			print('Number of hash codes/buckets for the given layer: ', len(list(table_instance.hash_table.keys()))) #, ' Max size of any given bucket: ', max(list(table_instance.hash_table.values())))

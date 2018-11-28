@@ -6,7 +6,7 @@ from task5_preprocessor import Task5PreProcessor
 
 """ Euclidean Hash Family => H(v) = |_(r.v + b)/w_| --- (1) """
 class Task5LSH:
-	def __init__(self, L_layer_count, k_hash_functions_per_layer, w_parameter = 0.078):
+	def __init__(self, L_layer_count, k_hash_functions_per_layer, w_parameter = 0.20):
 		self.preprocessor = Task5PreProcessor() # initialize the preprocessor instance
 		self.data_dict = dict() # declaring a dicitonary where key is image id and value is list of features. The values will be indexed.
 		self.L_layer_count = L_layer_count # the number of layers
