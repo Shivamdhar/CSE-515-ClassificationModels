@@ -57,15 +57,26 @@ class Task6a():
 		input_image_labels = list(self.input_image_label_pairs.values())
 		for image in self.img_ids:
 			label_similarity_dict = dict()
+			label_similarity_matrix = list()
+			klabel_similarity_dict = dict()
 			for i, labelled_image in enumerate(labelled_image_ids):
 				if input_image_labels[i] in label_similarity_dict:
-					label_similarity_dict[input_image_labels[i]] += self.get_euclidean_similarity(self.img_feature_matrix[str(image)], self.img_feature_matrix[str(labelled_image)])
+					label_similarity_dict[input_image_labels[i]].append([input_image_labels[i], labelled_image, self.get_euclidean_similarity(self.img_feature_matrix[str(image)], self.img_feature_matrix[str(labelled_image)])])
 				else:
-					label_similarity_dict[input_image_labels[i]] = self.get_euclidean_similarity(self.img_feature_matrix[str(image)], self.img_feature_matrix[str(labelled_image)])
-			for label in label_similarity_dict:
-				label_similarity_dict[label] = label_similarity_dict[label]/input_image_labels.count(label)
-			min_sim = min(label_similarity_dict.values())
-			for label, sim in label_similarity_dict.items():
+					label_similarity_dict[input_image_labels[i]] = [[input_image_labels[i], labelled_image, self.get_euclidean_similarity(self.img_feature_matrix[str(image)], self.img_feature_matrix[str(labelled_image)])]]
+			for label in label_similarity_dict.keys():
+				label_similarity_matrix.extend(label_similarity_dict[label])
+			label_similarity_matrix.sort(key=lambda x:x[2])
+			label_similarity_matrix = label_similarity_matrix[:int(k)]
+			for matrix in label_similarity_matrix:
+				if matrix[0] in klabel_similarity_dict:
+					klabel_similarity_dict[matrix[0]] += matrix[2]
+				else:
+					klabel_similarity_dict[matrix[0]] = matrix[2]
+			for label in klabel_similarity_dict:
+				klabel_similarity_dict[label] = klabel_similarity_dict[label]/len([x for x in label_similarity_matrix if x[0] == label])
+			min_sim = min(klabel_similarity_dict.values())
+			for label, sim in klabel_similarity_dict.items():
 				if sim == min_sim:
 					self.label_img_matrix[label].append([image, sim])
 
@@ -78,9 +89,9 @@ class Task6a():
 			op.write("Label " + label + "\n")
 			image_ids.sort(key=lambda x: x[1])
 			for temp in image_ids:
-				if temp[0] not in image_ids_seen:
+				if str(temp[0]) not in image_ids_seen:
 					op.write(str(temp[0]) + "\n")
-					image_ids_seen.append(temp[0])
+					image_ids_seen.append(str(temp[0]))
 			op.write("####\n")
 		
 	def runner(self):
@@ -88,7 +99,7 @@ class Task6a():
 		Method: runner implemented for all the tasks, takes user input, and prints desired results.
 		"""
 		try:
-			k = input('Enter value of k:')
+			k = input('Enter value of k: ')
 			self.generate_img_img_adj_matrix()
 			self.read_input_labels_pairs()
 			self.classify_images(k)
