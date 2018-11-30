@@ -44,7 +44,7 @@ class DataExtractor(object):
 		"""
 		locations = list(mapping.values())
 		image_feature_map = OrderedDict({})
-		models = constants.MODELS
+		models = constants.MODELS_6A
 
 		for location in locations:
 			for model in models:
